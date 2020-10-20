@@ -1,3 +1,38 @@
+''' 
+***** UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL *****
+********** GESPLA IPH/UFGRS PYTHON LIBRARY **********
+
+Website: https://www.ufrgs.br/warp/
+Repository: https://github.com/gespla-iph-ufrgs/gespla
+
+This file is under LICENSE: GNU General Public License v3.0
+Permissions:
+    Commercial use
+    Modification
+    Distribution
+    Patent use
+    Private use 
+Limitations:
+    Liability
+    Warranty 
+Conditions:
+    License and copyright notice
+    State changes
+    Disclose source
+    Same license 
+
+Module description:
+--Download data and metadata functions
+--Files are saved in .txt format.
+
+Authors:
+Marcio Inada: https://github.com/mshigue
+Ipora Possantti: https://github.com/ipo-exe
+
+First commit: 20 of October of 2020
+
+'''
+
 import pandas as pd
 
 
@@ -5,11 +40,15 @@ def metadata_ana_flow(folder='.', suff='flow'):
     """
     This function downloads metadata for all flow stations registered in the  Brazilian
     National Agency of Water (ANA).
+    
+    File is saved in .txt format
+    To the file name is attached the date of download in format: 'YYYY-MM-DD'
+    
     Dependencies:
     * HydroBr as hb
     * Pandas as pd
-    :param folder: string of output directory (ex: 'C:/Datasets/Hydrology' )
-    :param suff: string suffix for file name
+    :param folder: [optional] string of output directory (ex: 'C:/Datasets/Hydrology' )
+    :param suff: [optional] string suffix for file name
     :return: string of file path (ex: 'C:/Datasets/Hydrology/metadata_ANA-flow_2020-10-19.txt' )
     """
     import hydrobr as hb
@@ -35,6 +74,10 @@ def metadata_ana_prec(folder='.', suff='prec'):
     """
     this function downloads metadata for all precipitation stations registered in the  Brazilian
     National Agency of Water (ANA).
+    
+    File is saved in .txt format
+    To the file name is attached the date of download in format: 'YYYY-MM-DD'
+    
     External dependencies:
     * HydroBr as hb
     * Pandas as pd
@@ -64,7 +107,10 @@ def metadata_ana_prec(folder='.', suff='prec'):
 def metadata_inmet(folder='.', opt='both'):
     """
     this function downloads metadata for all precipitation stations registered in the  Brazilian
-    National Agency of Water (ANA) or the INMET
+    National Agency of Water (ANA) or the INMET    
+    
+    File is saved in .txt format
+    To the file name is attached the date of download in format: 'YYYY-MM-DD'
 
     External dependencies:
     * HydroBr as hb
@@ -114,6 +160,10 @@ def metadata_ana_telemetry(folder='.'):
     OBS: caso tenha a necessidade de fazer uma personalização na importação, é recomendável ler a documentação a cima.
     Neste caso, os dados de entrada devem ser inseridos no dicionário `params...` e as saídas podem ser
     habilitadas ou excluídas na lista `columns...`.
+    --------------------------------------
+    File is saved in .txt format
+    To the file name is attached the date of download in format: 'YYYY-MM-DD'
+        
     Dependencies:
         pandas as pd
     Internal dependencies:
@@ -183,6 +233,9 @@ def metadata_ana_rhn_inventory(folder='.'):
     OBS: caso tenha a necessidade de fazer uma personalização na importação, é recomendável ler a documentação a cima.
     Neste caso, os dados de entrada devem ser inseridos no dicionário `params...` e as saídas podem ser
     habilitadas ou excluídas na lista `columns...`.
+    --------------------------------------
+    File is saved in .txt format
+    To the file name is attached the date of download in format: 'YYYY-MM-DD'
 
     Dependencies:
         pandas as pd
@@ -367,7 +420,10 @@ def ana_prec(code, folder='.', suff='prec'):
 def inmet_daily(code, folder='.'):
     """
     This function downloads the timeseries of daily measured climate variables at a single station of INMET
-
+    --------------------------------------
+    File is saved in .txt format
+    To the file name is attached the date of download in format: 'YYYY-MM-DD'
+    
     External dependencies:
     * HydroBr as hb
     * Pandas as pd
@@ -408,7 +464,10 @@ def inmet_daily(code, folder='.'):
 def inmet_hourly(code, folder='.'):
     """
     This function downloads the timeseries of hourly measured climate variables at a single station of INMET.
-    Only available for automatic stations
+    Only available for automatic stations.
+    --------------------------------------
+    File is saved in .txt format
+    To the file name is attached the date of download in format: 'YYYY-MM-DD'
 
     Dependencies:
     * HydroBr as hb
@@ -445,6 +504,3 @@ def inmet_hourly(code, folder='.'):
     def_export_file = folder + '/' + error_str + 'INMET-hourly_' + code + '_' + today() + '.txt'
     df.to_csv(def_export_file, sep=';')
     return def_export_file
-
-
-
