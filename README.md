@@ -63,7 +63,7 @@ import scipy  # if used
 from gespla import download  # this imports the download module
 
 # call the module functions:
-my_file = download.metadata_ana_flow('C:/Datasets/ANA/')
+my_file = download.metadata_ana_flow(folder='C:/Datasets/ANA/')
 
 ```
 
