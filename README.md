@@ -31,12 +31,15 @@ Conditions:
 
 # How to use on [google colab](colab.research.google.com/):
 
-1) In the first cell, import the main packages as follows:
+1) In the first cell, import and install the main packages as follows:
 ```python
 import pandas as pd
 import numpy as np  # if used
 import matplotlib.pyplot as plt  # if used
 import scipy  # if used
+
+# for the download.py module:
+!pip install hydrobr
 ```
 
 2) Copy and paste the desired code block in the code cells. 
