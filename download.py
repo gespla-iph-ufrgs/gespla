@@ -388,7 +388,7 @@ def ana_stage(code, folder='.', suff='stage'):
 
     Fields in the file:
     Date - date of record in format YYYY-MM-DD
-    Stage - instant stage in m
+    Stage - instant stage in mm
 
     External dependencies:
     * HydroBr as hb
