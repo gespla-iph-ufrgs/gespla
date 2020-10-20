@@ -29,7 +29,19 @@ Conditions:
 * Disclose source
 * Same license 
 
-# How to use
+# How to use on [google colab](colab.research.google.com/):
+
+1) In the first cell, import the main packages as follows:
+```python
+import pandas as pd
+import numpy as np  # if used
+import matplotlib.pyplot as plt  # if used
+import scipy  # if used
+```
+
+2) Copy and paste the desired code block in the code cells. 
+
+# How to use on a machine
 
 1) Install [Python 3](https://www.python.org/downloads/).
 
@@ -51,6 +63,7 @@ from gespla import download  # this imports the download module
 my_file = download.metadata_ana_flow('C:/Datasets/ANA/')
 
 ```
+
 
 # Modules
 
