@@ -498,6 +498,8 @@ def inmet_daily(code, folder='.'):
     if code in df_meta.index:
         # use the .flow_data method
         df = hb.get_data.INMET.daily_data(code)
+        df.reset_index(inplace=True)
+        df.rename(mapper={'index': 'Date'}, axis='columns', inplace=True)
     else:
         # create an error msg dataframe
         dct = {'Error': ['Station Code not found']}
@@ -505,7 +507,7 @@ def inmet_daily(code, folder='.'):
         df = pd.DataFrame(dct, index=indx)
         error_str = 'error_'
     def_export_file = folder + '/' + error_str + 'INMET-daily_' + code + '_' + today() + '.txt'
-    df.to_csv(def_export_file, sep=';')
+    df.to_csv(def_export_file, sep=';', index=False)
     return def_export_file
 
 
@@ -543,6 +545,8 @@ def inmet_hourly(code, folder='.'):
     if code in df_meta.index:
         # use the .flow_data method
         df = hb.get_data.INMET.hourly_data(code)
+        df.reset_index(inplace=True)
+        df.rename(mapper={'index': 'Date'}, axis='columns', inplace=True)
     else:
         # create an error msg dataframe
         dct = {'Error': ['Station Code not found']}
@@ -550,5 +554,5 @@ def inmet_hourly(code, folder='.'):
         df = pd.DataFrame(dct, index=indx)
         error_str = 'error_'
     def_export_file = folder + '/' + error_str + 'INMET-hourly_' + code + '_' + today() + '.txt'
-    df.to_csv(def_export_file, sep=';')
+    df.to_csv(def_export_file, sep=';', index=False)
     return def_export_file
