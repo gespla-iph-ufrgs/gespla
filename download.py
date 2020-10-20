@@ -375,6 +375,48 @@ def ana_flow(code, folder='.', suff='flow'):
     return def_export_file
 
 
+def ana_stage(code, folder='.', suff='stage'):
+    """
+    This function downloads the time series of measured stage at a single station of ANA
+
+    External dependencies:
+    * HydroBr as hb
+    * Pandas as pd
+
+    :param code: string of the station code
+    :param folder: string of output directory (ex: 'C:/Datasets/Hydrology' )
+    :param suff: string suffix for file name
+    :return: string of file path (ex: 'C:/Datasets/Hydrology/ANA-flow_61861000_2020-10-19.txt' )
+    """
+    import hydrobr as hb
+
+    # function for timestamp
+    def today(p0='-'):
+        import datetime
+        def_now = datetime.datetime.now()
+        def_lst = [def_now.strftime('%Y'), def_now.strftime('%m'), def_now.strftime('%d')]
+        def_s = str(p0.join(def_lst))
+        return def_s
+
+    # get the metadata first by using the list_flow_stations() method
+    df_meta = hb.get_data.ANA.list_flow_stations()
+    df_meta.set_index('Code', inplace=True)  # set the 'Code' as the index of the DataFrame
+    df_meta.sort_index(inplace=True)  # sort the DataFrame by index
+    error_str = ''
+    if code in df_meta.index:
+        # use the .flow_data method
+        df = hb.get_data.ANA.stage_data([code])
+    else:
+        # create an error msg dataframe
+        dct = {'Error': ['Station Code not found']}
+        indx = [code]
+        df = pd.DataFrame(dct, index=indx)
+        error_str = 'error_'
+    def_export_file = folder + '/' + error_str + 'ANA' + '-' + suff + '_' + code + '_' + today() + '.txt'
+    df.to_csv(def_export_file, sep=';')
+    return def_export_file
+
+
 def ana_prec(code, folder='.', suff='prec'):
     """
     This function downloads the timeseries of measured precipitation at a single station of ANA
