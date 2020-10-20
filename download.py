@@ -486,7 +486,7 @@ def inmet_daily(code, folder='.'):
     - Tmean - Daily mean Temperature (ºC)
     - Tmax - Maximum Temperature (ºC)
     - Tmin - Minimum Temperature (ºC)
-    - RH - Relative Humidity (%)
+    - RHmean - Relative Humidity (%)
     - SD - Sunshine Duration (hours)
 
     External dependencies:
