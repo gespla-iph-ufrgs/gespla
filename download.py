@@ -333,14 +333,19 @@ def metadata_ana_rhn_inventory(folder='.'):
     return export_file_name
 
 
+
 def ana_flow(code, folder='.', suff='flow'):
     """
     This function downloads the time series of measured flow at a single station of ANA
 
+    Fields in the file:
+    Date - date of record in format YYYY-MM-DD
+    Flow - instant discharge rate in m3/s
+
+
     External dependencies:
     * HydroBr as hb
     * Pandas as pd
-
     :param code: string of the station code
     :param folder: string of output directory (ex: 'C:/Datasets/Hydrology' )
     :param suff: string suffix for file name
@@ -365,7 +370,7 @@ def ana_flow(code, folder='.', suff='flow'):
         # use the .flow_data method
         df = hb.get_data.ANA.flow_data([code])
         df.reset_index(inplace=True)
-        df.rename(mapper={'index': 'Date', code: 'Q (m3/s)'}, axis='columns', inplace=True)
+        df.rename(mapper={'index': 'Date', code: 'Flow'}, axis='columns', inplace=True)
     else:
         # create an error msg dataframe
         dct = {'Error': ['Station Code not found']}
@@ -379,12 +384,15 @@ def ana_flow(code, folder='.', suff='flow'):
 
 def ana_stage(code, folder='.', suff='stage'):
     """
-    This function downloads the time series of measured stage at a single station of ANA
+    This function downloads to a .txt file the time series of measured stage at a single station of ANA
+
+    Fields in the file:
+    Date - date of record in format YYYY-MM-DD
+    Stage - instant stage in m
 
     External dependencies:
     * HydroBr as hb
     * Pandas as pd
-
     :param code: string of the station code
     :param folder: string of output directory (ex: 'C:/Datasets/Hydrology' )
     :param suff: string suffix for file name
@@ -409,7 +417,7 @@ def ana_stage(code, folder='.', suff='stage'):
         # use the .flow_data method
         df = hb.get_data.ANA.stage_data([code])
         df.reset_index(inplace=True)
-        df.rename(mapper={'index': 'Date', code: 'Stg (m)'}, axis='columns', inplace=True)
+        df.rename(mapper={'index': 'Date', code: 'Stage'}, axis='columns', inplace=True)
     else:
         # create an error msg dataframe
         dct = {'Error': ['Station Code not found']}
@@ -423,12 +431,15 @@ def ana_stage(code, folder='.', suff='stage'):
 
 def ana_prec(code, folder='.', suff='prec'):
     """
-    This function downloads the timeseries of measured precipitation at a single station of ANA
+    This function downloads to a .txt file the timeseries of measured precipitation at a single station of ANA
+
+    Fields in the file:
+    Date - date of record in format YYYY-MM-DD
+    Prec - Daily precipitation in mm
 
     External dependencies:
     * HydroBr as hb
     * Pandas as pd
-
     :param code: string of the station code
     :param folder: string of output directory (ex: 'C:/Datasets/Hydrology' )
     :param suff: string suffix for file name
@@ -453,7 +464,7 @@ def ana_prec(code, folder='.', suff='prec'):
         # use the .flow_data method
         df = hb.get_data.ANA.prec_data([code])
         df.reset_index(inplace=True)
-        df.rename(mapper={'index': 'Date', code: 'P (mm)'}, axis='columns', inplace=True)
+        df.rename(mapper={'index': 'Date', code: 'Prec'}, axis='columns', inplace=True)
     else:
         # create an error msg dataframe
         dct = {'Error': ['Station Code not found']}
@@ -467,11 +478,17 @@ def ana_prec(code, folder='.', suff='prec'):
 
 def inmet_daily(code, folder='.'):
     """
-    This function downloads the timeseries of daily measured climate variables at a single station of INMET
-    --------------------------------------
-    File is saved in .txt format
-    To the file name is attached the date of download in format: 'YYYY-MM-DD'
-    
+    This function downloads to a .txt file the timeseries of daily measured climate variables at a single station of INMET
+
+    Fields in the file:
+    Date - Date of record in YYYY-MM-DD
+    - Prec - Precipitation (mm)
+    - Tmean - Daily mean Temperature (ºC)
+    - Tmax - Maximum Temperature (ºC)
+    - Tmin - Minimum Temperature (ºC)
+    - RH - Relative Humidity (%)
+    - SD - Sunshine Duration (hours)
+
     External dependencies:
     * HydroBr as hb
     * Pandas as pd
@@ -513,11 +530,28 @@ def inmet_daily(code, folder='.'):
 
 def inmet_hourly(code, folder='.'):
     """
-    This function downloads the timeseries of hourly measured climate variables at a single station of INMET.
-    Only available for automatic stations.
-    --------------------------------------
-    File is saved in .txt format
-    To the file name is attached the date of download in format: 'YYYY-MM-DD'
+    This function downloads to a file the timeseries of hourly measured climate variables at a single station of INMET.
+    Only available for automatic stations
+
+    Fields in the file:
+    - Date - Date of record in YYYY-MMM-DD hh-mm-ss
+    - Tins - Instant Temperature (ºC)
+    - Tmax - Maximum Temperature (ºC)
+    - Tmin - Minimum Temperature (ºC)
+    - RHins - Instant Relative Humidity (%)
+    - RHmax - Maximum Relative Humidity (%)
+    - RHmin - Minimum Relative Humidity (%)
+    - DPins - Instant Dew Point Temperature (ºC)
+    - DPmax - Maximum Dew Point Temperature (ºC)
+    - DPmin - Minimum Dew Point Temperature (ºC)
+    - Pins - Instant Pressure (hPa)
+    - Pmax - Maximum Pressure (hPa)
+    - Pmin - Minimum Pressure (hPa)
+    - Wspeed - Wind Speed (m/s)
+    - Wdir - Wind direction (º)
+    - Wgust - Wind gust (m/s)
+    - Rad - Global Radiation (kJ/m²)
+    - Prec - Precipitation (mm)
 
     Dependencies:
     * HydroBr as hb
@@ -556,3 +590,4 @@ def inmet_hourly(code, folder='.'):
     def_export_file = folder + '/' + error_str + 'INMET-hourly_' + code + '_' + today() + '.txt'
     df.to_csv(def_export_file, sep=';', index=False)
     return def_export_file
+
