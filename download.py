@@ -364,6 +364,8 @@ def ana_flow(code, folder='.', suff='flow'):
     if code in df_meta.index:
         # use the .flow_data method
         df = hb.get_data.ANA.flow_data([code])
+        df.reset_index(inplace=True)
+        df.rename(mapper={'index': 'Date', code: 'Q (m3/s)'}, axis='columns', inplace=True)
     else:
         # create an error msg dataframe
         dct = {'Error': ['Station Code not found']}
@@ -371,7 +373,7 @@ def ana_flow(code, folder='.', suff='flow'):
         df = pd.DataFrame(dct, index=indx)
         error_str = 'error_'
     def_export_file = folder + '/' + error_str + 'ANA' + '-' + suff + '_' + code + '_' + today() + '.txt'
-    df.to_csv(def_export_file, sep=';')
+    df.to_csv(def_export_file, sep=';', index=False)
     return def_export_file
 
 
@@ -406,6 +408,8 @@ def ana_stage(code, folder='.', suff='stage'):
     if code in df_meta.index:
         # use the .flow_data method
         df = hb.get_data.ANA.stage_data([code])
+        df.reset_index(inplace=True)
+        df.rename(mapper={'index': 'Date', code: 'Stg (m)'}, axis='columns', inplace=True)
     else:
         # create an error msg dataframe
         dct = {'Error': ['Station Code not found']}
@@ -413,7 +417,7 @@ def ana_stage(code, folder='.', suff='stage'):
         df = pd.DataFrame(dct, index=indx)
         error_str = 'error_'
     def_export_file = folder + '/' + error_str + 'ANA' + '-' + suff + '_' + code + '_' + today() + '.txt'
-    df.to_csv(def_export_file, sep=';')
+    df.to_csv(def_export_file, sep=';', index=False)
     return def_export_file
 
 
@@ -448,6 +452,8 @@ def ana_prec(code, folder='.', suff='prec'):
     if code in df_meta.index:
         # use the .flow_data method
         df = hb.get_data.ANA.prec_data([code])
+        df.reset_index(inplace=True)
+        df.rename(mapper={'index': 'Date', code: 'P (mm)'}, axis='columns', inplace=True)
     else:
         # create an error msg dataframe
         dct = {'Error': ['Station Code not found']}
@@ -455,7 +461,7 @@ def ana_prec(code, folder='.', suff='prec'):
         df = pd.DataFrame(dct, index=indx)
         error_str = 'error_'
     def_export_file = folder + '/' + error_str + 'ANA' + '-' + suff + '_' + code + '_' + today() + '.txt'
-    df.to_csv(def_export_file, sep=';')
+    df.to_csv(def_export_file, sep=';', index=False)
     return def_export_file
 
 
