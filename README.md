@@ -56,6 +56,7 @@ my_file = download.metadata_ana_flow('C:/Datasets/ANA/')
 
 ## `download.py`
 This module stores functions for download data and metadata. Files are saved in `.txt` format in a directory specifyed in the `folder=` parameter. If not passed, the default directory is the current folder of the python file calling the function. 
+
 General dependencies:
 * [Pandas](https://pandas.pydata.org/)
 * [tdqm](https://github.com/tqdm/tqdm)
@@ -63,7 +64,12 @@ General dependencies:
 
 ## `load.py`
 
----- A module to load data from files to `DataFrames`
+This module stores functions for loading the files created by the `download.py` module. Each function of `download.py` has a counterpart in `load.py`
+
+The data in the files are loaded to a `DataFrame` object. This procedure allows the data processing using the `pandas` library.
+
+General dependencies:
+* [Pandas](https://pandas.pydata.org/)
 
 ## `tseries.py`
 
