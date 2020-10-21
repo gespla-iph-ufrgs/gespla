@@ -85,9 +85,9 @@ my_file = metadata_ana_flow(folder='C:/Datasets/ANA/')
 ```
 
 ## Functions documentation
-Fuctions, and related returns and parameters are fully documented by docstrings. The docstrings are an extended comment in the heading of the function. You can read it by:
-1) Simply finding the docstring in the code, or;
-2) Printing on screen using the `.__doc__` attribute:
+Fuctions (and related returns and parameters) are fully documented by `docstrings`. A `docstring` is an extended comment in the heading of the function. You can read it by:
+1) Simply finding the `docstring` in the code, or;
+2) Printing the `.__doc__` attribute on screen. Example:
 ```python
 from download import metadata_ana_flow  # this imports the function called metadata_ana_flow
 
