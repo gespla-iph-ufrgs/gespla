@@ -4,10 +4,16 @@ GESPLA Python Toolbox
 
 This is the Python Library of GESPLA - Research Group on Water Resources Planning and Management 
 
+The purpose of the tool is to provide a set of routines in the form of function modules in Python 3. The available routines are unitary operations that can be coupled in any python code. The modules are separated by functionality class:
+* Download of hydrometeorological data.
+* Import of hydrometeorological data.
+* Time series processing.
+* Time series analysis.
+* Data visualization.
+* Regression models.
+* Hydroeconomic models.
+
 Website: https://www.ufrgs.br/warp/
-
-This is the Python Library of GESPLA - Research Group on Water Resources Planning and Management 
-
 
 # License
 This Repository is under `LICENSE`: GNU General Public License v3.0
