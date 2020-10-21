@@ -84,6 +84,17 @@ from download import metadata_ana_flow  # this imports the function called metad
 my_file = metadata_ana_flow(folder='C:/Datasets/ANA/')
 ```
 
+## Functions documentation
+Fuctions, and related returns and parameters are fully documented by docstrings. The docstrings are an extended comment in the heading of the function. You can read it by:
+1) Simply finding the docstring in the code, or;
+2) Printing on screen using the `.__doc__` attribute:
+```python
+from download import metadata_ana_flow  # this imports the function called metadata_ana_flow
+
+# print the function docstring:
+print(metadata_ana_flow.__doc__)
+```
+
 ## `download.py`
 This module stores functions for download data and metadata. Files are saved in `.txt` format in a directory specifyed in the `folder=` parameter. If not passed, the default directory is the current folder of the python file calling the function. 
 
