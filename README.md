@@ -80,7 +80,7 @@ General dependencies:
 
 ## `load.py`
 
-This module stores functions for loading the files created by the `download.py` module. Each function of `download.py` has a counterpart in `load.py`
+This module stores functions for loading data stored on files created by other modules, such as the `download.py` module. Each function of `download.py` has a counterpart in `load.py`.
 
 The data in the files are loaded to a `DataFrame` object. This procedure allows the data processing using the `pandas` library.
 
