@@ -96,7 +96,7 @@ print(metadata_ana_flow.__doc__)
 ```
 
 ## `download.py`
-This module stores functions for download data and metadata. Files are saved in `.txt` format in a directory specifyed in the `folder=` parameter. If not passed, the default directory is the current folder of the python file calling the function. 
+This module stores functions for download data and metadata. Files are saved in `.txt` format in a directory specifyed in the `folder=` parameter. If not passed, the default directory is the current folder of the python file calling the function. All functions return the string of the saved file path.
 
 General dependencies:
 * [Pandas](https://pandas.pydata.org/)
@@ -115,6 +115,17 @@ List of functions:
 * `.inmet_daily(code, folder)` - downloads daily climate data from a single climate station of INMET. See docstring for variables.
 * `.inmet_hourly(code, folder)` - downloads hourly climate data from a single climate station of INMET. See docstring for variables.
 
+Example:
+
+```python
+from gespla import download  # this imports the download module
+
+# call the module functions:
+my_file = download.metadata_ana_flow(folder='C:/Datasets/ANA/')
+# print on screen where the file was saved:
+print('The file was saved in: {}'.format(my_file))
+```
+
 ## `load.py`
 
 This module stores functions for loading data stored on files created by other modules, such as the `download.py` module. Each function of `download.py` has a counterpart in `load.py`.
@@ -130,6 +141,17 @@ List of functions:
 * `.ana_prec(file)` - loads to `DataFrame` the precipitation data from a single precipitation station of ANA.
 * `.inmet_daily(file)` - loads to `DataFrame` the daily climate data from a single climate station of INMET. See docstring for variables.
 * `.inmet_hourly(file)` - loads to `DataFrame` the hourly climate data from a single climate station of INMET. See docstring for variables.
+
+Example:
+
+```python
+from gespla import load  # this imports the download module
+
+# load to DataFrame the timeseries of flow data:
+df = load.ana_flow(file='ANA-flow_11444900_2020-10-20.txt')
+# print on screen the first 20 lines of the DataFrame:
+print(df.head(20).to_string())
+```
 
 ## `tseries.py`
 
