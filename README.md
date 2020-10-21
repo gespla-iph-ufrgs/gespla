@@ -1,8 +1,8 @@
 # gespla
 
-UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL
+GESPLA Python Toolbox
 
-GESPLA IPH/UFGRS PYTHON LIBRARY
+This is the Python Library of GESPLA - Research Group on Water Resources Planning and Management 
 
 Website: https://www.ufrgs.br/warp/
 
