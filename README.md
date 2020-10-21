@@ -67,8 +67,22 @@ my_file = download.metadata_ana_flow(folder='C:/Datasets/ANA/')
 
 ```
 
-
 # Modules
+
+Modules are python files storing a collection of functions created by the `def` statement. If you are in a python file in the same directory of a module, you can import it by the `import` statement. Example:
+```python
+import download  # this imports the download module
+
+# call the module functions:
+my_file = download.metadata_ana_flow(folder='C:/Datasets/ANA/')
+```
+You may also just import the desired function:
+```python
+from download import metadata_ana_flow  # this imports the function called metadata_ana_flow
+
+# call the module functions:
+my_file = metadata_ana_flow(folder='C:/Datasets/ANA/')
+```
 
 ## `download.py`
 This module stores functions for download data and metadata. Files are saved in `.txt` format in a directory specifyed in the `folder=` parameter. If not passed, the default directory is the current folder of the python file calling the function. 
