@@ -103,6 +103,13 @@ General dependencies:
 * [tdqm](https://github.com/tqdm/tqdm)
 * [HydroBR](https://github.com/wallissoncarvalho/hydrobr)
 
+List of functions:
+* `.metadata_ana_flow(folder)` - downloads metadata of flow stations of ANA.
+* `.metadata_ana_prec(folder)` - downloads metadata of precipitation stations of ANA.
+* `.metadata_inmet(folder)` - downloads metadata of climate stations of INMET.
+* `.ana_flow(code, folder)` - downloads flow data from a flow station of ANA.
+* `.ana_stage(code, folder)` - downloads stage data from a flow station of ANA.
+
 ## `load.py`
 
 This module stores functions for loading data stored on files created by other modules, such as the `download.py` module. Each function of `download.py` has a counterpart in `load.py`.
