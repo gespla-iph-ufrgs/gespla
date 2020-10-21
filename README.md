@@ -148,7 +148,7 @@ Example:
 from gespla import load  # this imports the download module
 
 # load to DataFrame the timeseries of flow data:
-df = load.ana_flow(file='ANA-flow_11444900_2020-10-20.txt')
+df = load.ana_flow(file='C:/Datasets/ANA/ANA-flow_11444900_2020-10-20.txt')
 # print on screen the first 20 lines of the DataFrame:
 print(df.head(20).to_string())
 ```
