@@ -104,11 +104,16 @@ General dependencies:
 * [HydroBR](https://github.com/wallissoncarvalho/hydrobr)
 
 List of functions:
-* `.metadata_ana_flow(folder)` - downloads metadata of flow stations of ANA.
-* `.metadata_ana_prec(folder)` - downloads metadata of precipitation stations of ANA.
-* `.metadata_inmet(folder)` - downloads metadata of climate stations of INMET.
-* `.ana_flow(code, folder)` - downloads flow data from a flow station of ANA.
-* `.ana_stage(code, folder)` - downloads stage data from a flow station of ANA.
+* `.metadata_ana_flow(folder)` - downloads metadata of all flow stations of ANA.
+* `.metadata_ana_prec(folder)` - downloads metadata of all precipitation stations of ANA.
+* `.metadata_inmet(folder, opt)` - downloads metadata of all climate stations of INMET, defined by type.
+* `.metadata_ana_telemetry(folder)` - downloads metadata of all telemetric stations of ANA.
+* `.metadata_ana_rhn_inventory(folder)` - downloads metadata of full inventory of stations of ANA.
+* `.ana_flow(code, folder)` - downloads flow data from a single flow station of ANA. 
+* `.ana_stage(code, folder)` - downloads stage data from a single flow station of ANA.
+* `.ana_prec(code, folder)` - downloads precipitation data from a single precipitation station of ANA.
+* `.inmet_daily(code, folder)` - downloads daily climate data from a single climate station of INMET. See docstring for variables.
+* `.inmet_hourly(code, folder)` - downloads hourly climate data from a single climate station of INMET. See docstring for variables.
 
 ## `load.py`
 
@@ -118,6 +123,13 @@ The data in the files are loaded to a `DataFrame` object. This procedure allows 
 
 General dependencies:
 * [Pandas](https://pandas.pydata.org/)
+
+List of functions:
+* `.ana_flow(file)` - loads to `DataFrame` the flow data from a single flow station of ANA. 
+* `.ana_stage(file)` - loads to `DataFrame` the stage data from a single flow station of ANA.
+* `.ana_prec(file)` - loads to `DataFrame` the precipitation data from a single precipitation station of ANA.
+* `.inmet_daily(file)` - loads to `DataFrame` the daily climate data from a single climate station of INMET. See docstring for variables.
+* `.inmet_hourly(file)` - loads to `DataFrame` the hourly climate data from a single climate station of INMET. See docstring for variables.
 
 ## `tseries.py`
 
