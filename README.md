@@ -151,12 +151,21 @@ List of current functions:
 Example:
 
 ```python
-from gespla import load  # this imports the download module
+[in:]
+from gespla import load  # this imports the load module
 
 # load to DataFrame the timeseries of flow data:
 df = load.ana_flow(file='C:/Datasets/ANA/ANA-flow_11444900_2020-10-20.txt')
-# print on screen the first 20 lines of the DataFrame:
-print(df.head(20).to_string())
+# print on screen the first 4 lines of the DataFrame:
+print(df.head(4).to_string())
+
+[out:]
+        Date     Flow
+0 1993-04-01  10126.0
+1 1993-04-02  10154.0
+2 1993-04-03  10210.0
+3 1993-04-04  10266.0
+
 ```
 
 ## `resample.py`
@@ -178,6 +187,31 @@ General dependencies:
 List of current functions:
 * `.d2m_prec(dataframe)` - resamples precipitation time series from daily to monthly. 
 * `.d2m_flow(dataframe, factor)` - resamples flow time series from daily to monthly.
+
+Example:
+```python
+[in:]
+from gespla import load, resample  # this imports the load and resample modules
+
+# load to DataFrame the timeseries of flow data:
+df_d = load.ana_flow(file='C:/Datasets/ANA/ANA-flow_11444900_2020-10-20.txt')
+
+f = 1 / 1000000  # this converts m3/month to hm3/month
+# call the d2m_flow() function:
+df_m = resample.d2m_flow(dataframe=df_d, factor=f)
+# print on screen the first 4 lines of the DataFrame:
+print(df.head(4).to_string())
+
+[out:]
+        Date         Sum         Mean        Max       Min        Q25        Q50        Q75
+0 1993-04-01  30424.8960  1014.163200  1125.9648  874.8864   929.9232  1024.8768  1104.7968
+1 1993-05-01  33377.7024  1076.700077  1132.0128  996.3648  1026.7776  1095.7248  1127.7792
+2 1993-06-01  27308.9664   910.298880   994.4640  805.9392   835.8768   936.5760   966.5136
+3 1993-07-01  24485.7600   789.863226   831.3408  710.3808   766.6272   807.1488   819.2448
+
+```
+
+
 
 ## `visuals.py`
 
