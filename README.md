@@ -109,7 +109,7 @@ General dependencies:
 * [tdqm](https://github.com/tqdm/tqdm)
 * [HydroBR](https://github.com/wallissoncarvalho/hydrobr)
 
-List of functions:
+List of current functions:
 * `.metadata_ana_flow(folder)` - downloads metadata of all flow stations of ANA.
 * `.metadata_ana_prec(folder)` - downloads metadata of all precipitation stations of ANA.
 * `.metadata_inmet(folder, opt)` - downloads metadata of all climate stations of INMET, defined by type.
@@ -141,7 +141,7 @@ The data in the files are loaded to a `DataFrame` object. This procedure allows 
 General dependencies:
 * [Pandas](https://pandas.pydata.org/)
 
-List of functions:
+List of current functions:
 * `.ana_flow(file)` - loads to `DataFrame` the flow data from a single flow station of ANA. 
 * `.ana_stage(file)` - loads to `DataFrame` the stage data from a single flow station of ANA.
 * `.ana_prec(file)` - loads to `DataFrame` the precipitation data from a single precipitation station of ANA.
@@ -159,9 +159,25 @@ df = load.ana_flow(file='C:/Datasets/ANA/ANA-flow_11444900_2020-10-20.txt')
 print(df.head(20).to_string())
 ```
 
-## `tseries.py`
+## `resample.py`
 
----- A module for time series processing such as upscale (ex: daily to monthly precipitation)
+This module stores functions for resampling time series, such as from daily to monthly. The input data is passed as a `DataFrame` object so the functions process it and then returns a `DataFrame` object containing the new time series. The returned monthly variables are (when valid) at least:
+
+* Sum;
+* Mean;
+* Min;
+* Max;
+* Q25;
+* Q50 (Median);
+* Q75.
+
+General dependencies:
+* [Pandas](https://pandas.pydata.org/)
+* [Numpy](https://numpy.org/)
+
+List of current functions:
+* `.d2m_prec(dataframe)` - resamples precipitation time series from daily to monthly. 
+* `.d2m_flow(dataframe, factor)` - resamples flow time series from daily to monthly.
 
 ## `visuals.py`
 
