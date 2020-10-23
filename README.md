@@ -198,14 +198,17 @@ General dependencies:
 * [Numpy](https://numpy.org/)
 
 List of current functions:
-* `.d2m_prec(dataframe)` - resamples precipitation time series from daily to monthly. 
-* `.d2m_flow(dataframe, factor)` - resamples flow time series from daily to monthly.
-* `.d2m_stage(dataframe)` - resamples stage time series from daily to monthly.
-* `.d2m_clim(dataframe)` - resamples climate variable time series from daily to monthly.
-
-* `.d2y_prec(dataframe)` - resamples precipitation time series from daily to yearly. 
-* `.d2y_flow(dataframe, factor)` - resamples flow time series from daily to yearly.
-* `.d2y_stage(dataframe)` - resamples stage time series from daily to monthly.
+* `.d2m_prec()` - resamples precipitation time series from daily to monthly. 
+* `.d2m_flow()` - resamples flow time series from daily to monthly.
+* `.d2m_stage()` - resamples stage time series from daily to monthly.
+* `.d2m_clim()` - resamples climate variable time series from daily to monthly.
+* `.d2y_prec()` - resamples precipitation time series from daily to yearly. 
+* `.d2y_flow()` - resamples flow time series from daily to yearly.
+* `.d2y_stage()` - resamples stage time series from daily to yearly.
+* `.d2y_clim()` - resamples climate variable time series from daily to yearly.
+* `.clear_bad_months()` - removes from the time series months that have null records (gaps).
+* `.clear_bad_years()` - removes from the time series years that have null records (gaps).
+* `.resampler()` - this function is the module resampler function called.
 
 Example:
 ```python
@@ -229,7 +232,6 @@ print(df.head(4).to_string())
 3 1993-07-01  24485.7600   789.863226   831.3408  710.3808   766.6272   807.1488   819.2448
 
 ```
-
 
 
 ## `visuals.py`
