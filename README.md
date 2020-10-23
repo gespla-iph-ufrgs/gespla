@@ -37,7 +37,9 @@ Conditions:
 
 # How to use on [google colab](colab.research.google.com/):
 
-1) In the first cell, import and install the main packages as follows:
+1) Donwload the repository and extract the folder to your workspace. 
+
+2) On google colab, in the first cell, import and install the main packages as follows:
 ```python
 import pandas as pd
 import numpy as np  # if used
@@ -48,7 +50,12 @@ import scipy  # if used
 !pip install hydrobr
 ```
 
-2) Copy and paste the desired code block in the code cells. 
+2) In the side pannel, load the desired modules python files. 
+
+3) Import the desired modules. Example:
+```python
+import load
+```
 
 # How to use on a machine
 
@@ -89,6 +96,12 @@ from download import metadata_ana_flow  # this imports the function called metad
 # call the module functions:
 my_file = metadata_ana_flow(folder='C:/Datasets/ANA/')
 ```
+
+## Modules are independent
+The modules are independent from each other. This means that only one or module may be used. It does not going to crash.
+
+## Functions may have local dependencies
+Functions defined in a single module may depend on other local functions. Unless full code inspection, avoid to simply copying functions to your code. Instead, use the entire module as a dependency. 
 
 ## Functions documentation
 Fuctions (and related returns and parameters) are fully documented by `docstrings`. A `docstring` is an extended comment in the heading of the function. You can read it by:
