@@ -98,7 +98,7 @@ my_file = metadata_ana_flow(folder='C:/Datasets/ANA/')
 ```
 
 ## Modules are independent
-The modules are independent from each other. This means that only one or module may be used. It does not going to crash.
+The modules are independent from each other. This means that any subset of modules can be used without crash concerns.
 
 ## Functions may have local dependencies
 Functions defined in a single module may depend on other local functions. Unless full code inspection, avoid to simply copying functions to your code. Instead, use the entire module as a dependency. 
@@ -183,9 +183,9 @@ print(df.head(4).to_string())
 
 ## `resample.py`
 
-This module stores functions for resampling time series, such as from daily to monthly. The input data is passed as a `DataFrame` object so the functions process it and then returns a `DataFrame` object containing the new time series. The returned monthly variables are (when valid):
+This module stores functions for resampling time series, such as from daily to monthly. The input data is passed as a `DataFrame` object so the functions process it and then returns a `DataFrame` object containing the new time series. The returned monthly variables are:
 
-* Sum;
+* Sum (only flow and precipitation);
 * Mean;
 * Min;
 * Max;
@@ -201,6 +201,11 @@ List of current functions:
 * `.d2m_prec(dataframe)` - resamples precipitation time series from daily to monthly. 
 * `.d2m_flow(dataframe, factor)` - resamples flow time series from daily to monthly.
 * `.d2m_stage(dataframe)` - resamples stage time series from daily to monthly.
+* `.d2m_clim(dataframe)` - resamples climate variable time series from daily to monthly.
+
+* `.d2y_prec(dataframe)` - resamples precipitation time series from daily to yearly. 
+* `.d2y_flow(dataframe, factor)` - resamples flow time series from daily to yearly.
+* `.d2y_stage(dataframe)` - resamples stage time series from daily to monthly.
 
 Example:
 ```python
