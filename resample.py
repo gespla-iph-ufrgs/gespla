@@ -35,7 +35,7 @@ First commit: 20 of October of 2020
 import pandas as pd
 import numpy as np
 
-
+# ok
 def fill_gaps(dataframe, var_field, date_field='Date', size=4, type='cubic'):
     """
     This function interpolates gaps on a time series. The maximum gap length for interpolation can
