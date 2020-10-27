@@ -35,7 +35,52 @@ First commit: 20 of October of 2020
 import pandas as pd
 import numpy as np
 
-# ok
+
+def group_by_month(dataframe, var_field, date_field='Date'):
+    """
+    This function groups a daily time series into 12 timeseries for each month in the year.
+
+    :param dataframe: pandas DataFrame object. The date field must be in a column, not the index.
+    :param var_field: string head of the variable field.
+    :param date_field: string head of the date field. Default: 'Date'
+    :return: dictionary of dataframes for daily timeseries of each month.
+
+    Keys of dicitonary:
+    '1' - January
+    '2' - February
+    '3' - March
+
+    ...
+
+    '12' - December
+
+    """
+    #
+    # get data from DataFrame
+    in_df = dataframe.copy()
+    #
+    # ensure datefield is datetime
+    in_df['Date'] = pd.to_datetime(in_df['Date'])
+    #
+    # create a helper year-month field
+    in_df['Month'] = in_df[date_field].apply(lambda x: x.strftime('%B'))
+    in_df['Month'] = in_df['Month'].astype('category')
+    in_df.dropna(inplace=True)
+    # print(in_df.head(10).to_string())
+    #
+    # built new dataframe:
+    aux_df = pd.DataFrame({'Date':in_df[date_field], var_field:in_df[var_field], 'Month':in_df['Month']})
+    months = aux_df['Month'].unique()
+    def_gb = aux_df.groupby('Month')
+    #
+    # built output dictionary:
+    out_dct = dict()
+    for i in range(len(months)):
+        print(months[i])
+        out_dct[str(i + 1)] = def_gb.get_group(months[i])
+    return out_dct
+
+
 def fill_gaps(dataframe, var_field, date_field='Date', size=4, type='cubic'):
     """
     This function interpolates gaps on a time series. The maximum gap length for interpolation can
