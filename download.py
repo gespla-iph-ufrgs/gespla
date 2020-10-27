@@ -72,10 +72,9 @@ def metadata_ana_flow(folder='.', suff='flow'):
     df = hb.get_data.ANA.list_flow_stations()
     df.rename(mapper={'Code': 'CodEstacao'}, axis='columns', inplace=True)
     df['CodEstacao'] = df['CodEstacao'].astype(str)
-    df.set_index('CodEstacao', inplace=True)  # set the 'CodEstacao' as the index of the DataFrame
     df.sort_index(inplace=True)  # sort the DataFrame by index
     def_export_file = folder + '/' + 'metadata_' + 'ANA' + '-' + suff + '_' + today() + '.txt'
-    df.to_csv(def_export_file, sep=';')
+    df.to_csv(def_export_file, sep=';', index=False)
     return def_export_file
 
 
@@ -107,10 +106,9 @@ def metadata_ana_prec(folder='.', suff='prec'):
     df = hb.get_data.ANA.list_prec_stations()
     df.rename(mapper={'Code': 'CodEstacao'}, axis='columns', inplace=True)
     df['CodEstacao'] = df['CodEstacao'].astype(str)
-    df.set_index('CodEstacao', inplace=True)  # set the 'CodEstacao' as the index of the DataFrame
     df.sort_index(inplace=True)  # sort the DataFrame by index
     def_export_file = folder + '/' + 'metadata_' + 'ANA' + '-' + suff + '_' + today() + '.txt'
-    df.to_csv(def_export_file, sep=';')
+    df.to_csv(def_export_file, sep=';', index=False)
     return def_export_file
 
 
@@ -149,10 +147,9 @@ def metadata_inmet(folder='.', opt='both'):
                       'Start Operation': 'StartOperation',
                       'End Operation': 'EndOperation'}, axis='columns', inplace=True)
     df['CodEstacao'] = df['CodEstacao'].astype(str)
-    df.set_index('CodEstacao', inplace=True)  # set the 'CodEstacao' as the index of the DataFrame
     df.sort_index(inplace=True)  # sort the DataFrame by index
     def_export_file = folder + '/' + 'metadata_' + 'INMET-' + opt + '_' + today() + '.txt'
-    df.to_csv(def_export_file, sep=';')
+    df.to_csv(def_export_file, sep=';', index=False)
     return def_export_file
 
 
@@ -221,12 +218,11 @@ def metadata_ana_telemetry(folder='.'):
         index += 1
     #
     df['CodEstacao'] = df['CodEstacao'].astype(str)
-    df_telemetrica.set_index('CodEstacao', inplace=True)
     df_telemetrica.sort_index(inplace=True)
     #
     # Exporta os dados para o arquivo CSV (txt)
     export_file_name = folder + '/' + 'metadata_ANA_RHN-Telemetry_' + today() + '.txt'
-    df_telemetrica.to_csv(export_file_name, sep=';')
+    df_telemetrica.to_csv(export_file_name, sep=';', index=False)
     return export_file_name
 
 
@@ -337,12 +333,11 @@ def metadata_ana_rhn_inventory(folder='.'):
     #
     df_hidro.rename(mapper={'Codigo': 'CodEstacao'}, axis='columns', inplace=True)  # rename 'Codigo' by 'CodEstacao'
     df['CodEstacao'] = df['CodEstacao'].astype(str)
-    df_hidro.set_index('CodEstacao', inplace=True)  # set the 'CodEstacao' as the index of the DataFrame
     df_hidro.sort_index(inplace=True)
     #
     # Exporta os dados para o arquivo CSV (txt)
     export_file_name = folder + '/' + 'metadata_ANA_RHN-Full-Inventory_' + today() + '.txt'
-    df_hidro.to_csv(export_file_name, sep=';')
+    df_hidro.to_csv(export_file_name, sep=';', index=False)
     return export_file_name
 
 
