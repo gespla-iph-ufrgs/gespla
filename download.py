@@ -71,6 +71,7 @@ def metadata_ana_flow(folder='.', suff='flow'):
     #
     df = hb.get_data.ANA.list_flow_stations()
     df.rename(mapper={'Code': 'CodEstacao'}, axis='columns', inplace=True)
+    df['CodEstacao'] = df['CodEstacao'].astype(str)
     df.set_index('CodEstacao', inplace=True)  # set the 'CodEstacao' as the index of the DataFrame
     df.sort_index(inplace=True)  # sort the DataFrame by index
     def_export_file = folder + '/' + 'metadata_' + 'ANA' + '-' + suff + '_' + today() + '.txt'
@@ -105,6 +106,7 @@ def metadata_ana_prec(folder='.', suff='prec'):
     #
     df = hb.get_data.ANA.list_prec_stations()
     df.rename(mapper={'Code': 'CodEstacao'}, axis='columns', inplace=True)
+    df['CodEstacao'] = df['CodEstacao'].astype(str)
     df.set_index('CodEstacao', inplace=True)  # set the 'CodEstacao' as the index of the DataFrame
     df.sort_index(inplace=True)  # sort the DataFrame by index
     def_export_file = folder + '/' + 'metadata_' + 'ANA' + '-' + suff + '_' + today() + '.txt'
@@ -146,6 +148,7 @@ def metadata_inmet(folder='.', opt='both'):
     df.rename(mapper={'Code': 'CodEstacao',
                       'Start Operation': 'StartOperation',
                       'End Operation': 'EndOperation'}, axis='columns', inplace=True)
+    df['CodEstacao'] = df['CodEstacao'].astype(str)
     df.set_index('CodEstacao', inplace=True)  # set the 'CodEstacao' as the index of the DataFrame
     df.sort_index(inplace=True)  # sort the DataFrame by index
     def_export_file = folder + '/' + 'metadata_' + 'INMET-' + opt + '_' + today() + '.txt'
@@ -217,6 +220,7 @@ def metadata_ana_telemetry(folder='.'):
             df_telemetrica.at[index, column] = getattr(station.find(column), 'text', None)
         index += 1
     #
+    df['CodEstacao'] = df['CodEstacao'].astype(str)
     df_telemetrica.set_index('CodEstacao', inplace=True)
     df_telemetrica.sort_index(inplace=True)
     #
@@ -332,6 +336,7 @@ def metadata_ana_rhn_inventory(folder='.'):
         index += 1
     #
     df_hidro.rename(mapper={'Codigo': 'CodEstacao'}, axis='columns', inplace=True)  # rename 'Codigo' by 'CodEstacao'
+    df['CodEstacao'] = df['CodEstacao'].astype(str)
     df_hidro.set_index('CodEstacao', inplace=True)  # set the 'CodEstacao' as the index of the DataFrame
     df_hidro.sort_index(inplace=True)
     #
@@ -424,6 +429,7 @@ def ana_prec(code, folder='.', suff='prec'):
     df_meta = hb.get_data.ANA.list_prec_stations()
     df_meta.set_index('Code', inplace=True)  # set the 'Code' as the index of the DataFrame
     df_meta.sort_index(inplace=True)  # sort the DataFrame by index
+    print(df_meta[df_meta['State'] == 'GOIÁS'].head(20).to_string())
     error_str = ''
     start_str = ''
     end_str = ''
