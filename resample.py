@@ -1,3 +1,37 @@
+'''
+***** UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL *****
+********** GESPLA IPH/UFGRS PYTHON LIBRARY **********
+
+Website: https://www.ufrgs.br/warp/
+Repository: https://github.com/gespla-iph-ufrgs/gespla
+
+This file is under LICENSE: GNU General Public License v3.0
+Permissions:
+    Commercial use
+    Modification
+    Distribution
+    Patent use
+    Private use
+Limitations:
+    Liability
+    Warranty
+Conditions:
+    License and copyright notice
+    State changes
+    Disclose source
+    Same license
+
+Module description:
+--Download data and metadata functions
+--Files are saved in .txt format.
+
+Authors:
+Marcio Inada: https://github.com/mshigue
+Ipora Possantti: https://github.com/ipo-exe
+
+First commit: 20 of October of 2020
+'''
+
 import pandas as pd
 import numpy as np
 
@@ -422,4 +456,3 @@ def d2y_clim(dataframe,  var_field, date_field='Date'):
     #
     return def_out.copy()
 
-  

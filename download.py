@@ -22,16 +22,24 @@ Conditions:
     Same license 
 
 Module description:
---Download data and metadata functions
---Files are saved in .txt format.
+This module stores functions for download data and metadata.
+Files are saved in .txt format in a directory specifyed in the folder= parameter.
+If not passed, the default directory is the current folder of the python file calling the function.
+All functions return the string of the saved file path.
+
+General dependencies:
+
+Pandas
+tdqm
+HydroBR
 
 Authors:
 Marcio Inada: https://github.com/mshigue
 Ipora Possantti: https://github.com/ipo-exe
 
 First commit: 20 of October of 2020
-
 '''
+
 
 import pandas as pd
 
