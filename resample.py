@@ -36,6 +36,112 @@ import pandas as pd
 import numpy as np
 
 
+def fill_gaps(dataframe, var_field, date_field='Date', size=4, type='cubic'):
+    """
+    This function interpolates gaps on a time series. The maximum gap length for interpolation can
+    be defined in the size= parameter. The time scale of series are not relevant.
+
+    :param dataframe: pandas DataFrame object. The date field must be in a column, not the index.
+    :param var_field: string head of the variable field.
+    :param date_field: string head of the date field. Default: 'Date'
+    :param size: integer number for maximum gap length to fill. Default is 4.
+    :param type: string of interpolation tipe (it uses scipy.interpolate.interp1d)
+    Default: 'cubic' - cubic spline
+
+    Options (from scipy docs - https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html )
+    'linear'
+    'nearest'
+    'zero'
+    'slinear'
+    'quadratic'
+    'cubic'
+    'previous'
+    'next'
+
+    Where 'zero', 'slinear', 'quadratic' and 'cubic' refer to a spline interpolation of zeroth, first,
+    second or third order; 'previous' and 'next' simply return the previous or next value of the point)
+    or as an integer specifying the order of the spline interpolator to use.
+
+    :return: pandas DataFrame object with the filled series on the variable column
+    """
+    from scipy.interpolate import interp1d
+    #
+    # get data from DataFrame
+    in_df = dataframe.copy()
+    def_x = np.array(in_df.index)
+    def_y = in_df[var_field].values
+    #
+    # create a boolean of null values
+    ybool = (np.isnan(def_y)) * 1
+    #
+    # accumulate the null values into an array
+    aux_lst = list()
+    counter = 0
+    for i in range(len(def_y)):
+        if ybool[i] == 0:
+            counter = 0
+            aux_lst.append(counter)
+        else:
+            counter = counter + 1
+            aux_lst.append(counter)
+    accum = np.array(aux_lst[:])
+    #
+    # get only highest values of the accumulated array
+    aux_lst.clear()
+    aux_lst = list()
+    for i in range(0, len(def_y)):
+        if i == len(def_y) - 1:
+            aux_lst.append(accum[i])
+        else:
+            if accum[i] == 0:
+                aux_lst.append(0)
+            else:
+                if accum[i + 1] == 0:
+                    aux_lst.append(accum[i])
+                else:
+                    aux_lst.append(0)
+    accmhi = np.array(aux_lst[:])
+    #
+    # load the array to a DataFrame:
+    def_df = pd.DataFrame({'Hi': accmhi})
+    #
+    # overwrite array to get only where the series must be splitted
+    def_df = def_df[def_df['Hi'] > size]
+    indx_end = np.array(def_df.index + 1)  # end indexes
+    indx_start = np.array(def_df.index + 1) - def_df['Hi'].values  # star indexes
+    slices_array = np.sort(np.append(indx_start, indx_end))  # merge indexes
+    #
+    # remove record if is in the end
+    def_df = pd.DataFrame({'Slices': slices_array})
+    def_df = def_df[def_df['Slices'] < len(def_y)]
+    slices_array = def_df['Slices'].values
+    sliced_y = np.split(def_y, slices_array)
+    sliced_x = np.split(def_x, slices_array)
+    #
+    # interpolate:
+    def_y_new = np.array([])
+    for i in range(len(sliced_y)):
+        lcl_y = sliced_y[i]
+        lcl_x = sliced_x[i]
+        lcl_bool = np.isnan(sliced_y[i])
+        if np.sum(lcl_bool) == len(lcl_bool):
+            def_y_new = np.append(def_y_new, lcl_y)
+        elif np.sum(lcl_bool) == 0:
+            def_y_new = np.append(def_y_new, lcl_y)
+        else:
+            # load to DataFrame:
+            def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y})
+            def_df = def_df.dropna(how='any')
+            interf = interp1d(def_df['X'], def_df['Y'], kind=type)  # create a function
+            lcl_y_new = interf(lcl_x)
+            def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y_new})
+            def_y_new = np.append(def_y_new, lcl_y_new)
+    #
+    #
+    out_df = pd.DataFrame({'Date': in_df['Date'], var_field: def_y_new})
+    return out_df
+
+
 def resampler(dataframe, var_field, date_field='Date', type='Month', include_zero=True):
     """
     This function is the resampler function. It takes a time series and resample variables based on a
