@@ -7,7 +7,7 @@ def metadata_ana_flow(file):
     :param file: file string
     :return: pandas DataFrame
     """
-    def_df = pd.read_csv(file, sep=';', index_col='CodEstacao', parse_dates=['StartDate', 'EndDate'])
+    def_df = pd.read_csv(file, sep=';', dtype={'CodEstacao': str}, parse_dates=['StartDate', 'EndDate'])
     # data set memory optimization
     def_df['Type'] = def_df['Type'].astype('category')
     def_df['State'] = def_df['State'].astype('category')
@@ -35,7 +35,7 @@ def metadata_inmet(file):
     :param file: file string
     :return: pandas DataFrame
     """
-    def_df = pd.read_csv(file, sep=';', index_col='CodEstacao', parse_dates=['StartOperation'])
+    def_df = pd.read_csv(file, sep=';', dtype={'CodEstacao': str}, parse_dates=['StartOperation'])
     # data set memory optimization
     def_df['Type'] = def_df['Type'].astype('category')
     def_df['State'] = def_df['State'].astype('category')
