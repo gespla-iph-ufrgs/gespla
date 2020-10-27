@@ -341,6 +341,60 @@ def metadata_ana_rhn_inventory(folder='.'):
     return export_file_name
 
 
+def ana_flow(code, folder='.', suff='flow'):
+    """
+    This function downloads the time series of measured flow at a single station of ANA
+
+    Fields in the file:
+    Date - date of record in format YYYY-MM-DD
+    Flow - instant discharge rate in m3/s
+
+
+    External dependencies:
+    * HydroBr as hb
+    * Pandas as pd
+    :param code: string of the station code
+    :param folder: string of output directory (ex: 'C:/Datasets/Hydrology' )
+    :param suff: string suffix for file name
+    :return: string of file path (ex: 'C:/Datasets/Hydrology/ANA-flow_61861000_2020-10-19.txt' )
+    """
+    import hydrobr as hb
+
+    # function for timestamp
+    def today(p0='-'):
+        import datetime
+        def_now = datetime.datetime.now()
+        def_lst = [def_now.strftime('%Y'), def_now.strftime('%m'), def_now.strftime('%d')]
+        def_s = str(p0.join(def_lst))
+        return def_s
+
+    # get the metadata first by using the list_flow_stations() method
+    df_meta = hb.get_data.ANA.list_flow_stations()
+    df_meta.set_index('Code', inplace=True)  # set the 'Code' as the index of the DataFrame
+    df_meta.sort_index(inplace=True)  # sort the DataFrame by index
+    error_str = ''
+    start_str = ''
+    end_str = ''
+    if code in df_meta.index:
+        # use the .flow_data method
+        df = hb.get_data.ANA.flow_data([code])
+        df.reset_index(inplace=True)
+        df.rename(mapper={'index': 'Date', code: 'Flow'}, axis='columns', inplace=True)
+        start_str = str(pd.to_datetime(df['Date'].nsmallest(n=1).values[0]).year)
+        end_str = str(pd.to_datetime(df['Date'].nlargest(n=1).values[0]).year)
+    else:
+        # create an error msg dataframe
+        dct = {'Error': ['Station Code not found']}
+        indx = [code]
+        df = pd.DataFrame(dct, index=indx)
+        error_str = 'error_'
+    prefix_str = error_str + 'ANA' + '-' + suff + '_'
+    suffix_str = '_' + start_str + '-' + end_str + '__by-' + today()
+    def_export_file = folder + '/' + prefix_str + code + suffix_str + '.txt'
+    df.to_csv(def_export_file, sep=';', index=False)
+    return def_export_file
+
+
 def ana_stage(code, folder='.', suff='stage'):
     """
     This function downloads to a .txt file the time series of measured stage at a single station of ANA
