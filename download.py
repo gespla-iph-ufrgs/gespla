@@ -478,7 +478,6 @@ def ana_prec(code, folder='.', suff='prec'):
     df_meta = hb.get_data.ANA.list_prec_stations()
     df_meta.set_index('Code', inplace=True)  # set the 'Code' as the index of the DataFrame
     df_meta.sort_index(inplace=True)  # sort the DataFrame by index
-    print(df_meta[df_meta['State'] == 'GOIÁS'].head(20).to_string())
     error_str = ''
     start_str = ''
     end_str = ''
