@@ -1,6 +1,30 @@
 import pandas as pd
 
 
+def insert_gaps(dataframe, date_field='Date', freq='D'):
+    """
+    This function standardizes a timeseries by inserting the missing gaps as actual records
+    :param dataframe: pandas DataFrame object
+    :param date_field: string datefield - Default: 'Date'
+    :param freq: string frequency alias offset (see pandas documentation). Dafault: 'D' (daily)
+    :return: pandas DataFrame object with inserted gaps records
+    """
+    # get data from DataFrame
+    in_df = dataframe.copy()
+    # ensure Date field is datetime
+    in_df[date_field] = pd.to_datetime(in_df[date_field])
+    # create start and end values
+    start = in_df[date_field].min()
+    end = in_df[date_field].max()
+    # create the reference date index
+    ref_dates = pd.date_range(start=start, end=end, freq=freq)
+    # create the reference dataset
+    ref_df = pd.DataFrame({'Date':ref_dates})
+    # left join on datasets
+    merge = pd.merge(ref_df, in_df, how='left', left_on='Date', right_on=date_field)
+    return merge
+
+
 def metadata_ana_flow(file):
     """
     This function loads a DataFrame based on the file created in  .download.metadata_ana_flow()
@@ -50,7 +74,8 @@ def ana_flow(file):
     """
     def_df = pd.read_csv(file, sep=';')
     def_df['Date'] = pd.to_datetime(def_df['Date'])
-    return def_df
+    def_merged = insert_gaps(def_df, freq='D')
+    return def_merged
 
 
 def ana_stage(file):
@@ -61,7 +86,8 @@ def ana_stage(file):
     """
     def_df = pd.read_csv(file, sep=';')
     def_df['Date'] = pd.to_datetime(def_df['Date'])
-    return def_df
+    def_merged = insert_gaps(def_df, freq='D')  # make sure the gaps are in record
+    return def_merged
 
 
 def ana_prec(file):
@@ -72,7 +98,8 @@ def ana_prec(file):
     """
     def_df = pd.read_csv(file, sep=';')
     def_df['Date'] = pd.to_datetime(def_df['Date'])
-    return def_df
+    def_merged = insert_gaps(def_df, freq='D')  # make sure the gaps are in record
+    return def_merged
 
 
 def inmet_daily(file):
@@ -83,7 +110,8 @@ def inmet_daily(file):
     """
     def_df = pd.read_csv(file, sep=';')
     def_df['Date'] = pd.to_datetime(def_df['Date'])
-    return def_df
+    def_merged = insert_gaps(def_df, freq='D')  # make sure the gaps are in record
+    return def_merged
 
 
 def inmet_hourly(file):
@@ -94,7 +122,8 @@ def inmet_hourly(file):
     """
     def_df = pd.read_csv(file, sep=';')
     def_df['Date'] = pd.to_datetime(def_df['Date'])
-    return def_df
+    def_merged = insert_gaps(def_df, freq='H')  # make sure the gaps are in record
+    return def_merged
 
 
 

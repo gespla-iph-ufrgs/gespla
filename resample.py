@@ -81,7 +81,31 @@ def group_by_month(dataframe, var_field, date_field='Date'):
     return out_dct
 
 
-def fill_gaps(dataframe, var_field, date_field='Date', size=4, type='cubic'):
+def insert_gaps(dataframe, date_field='Date', freq='D'):
+    """
+    This function standardizes a timeseries by inserting the missing gaps as actual records
+    :param dataframe: pandas DataFrame object
+    :param date_field: string datefield - Default: 'Date'
+    :param freq: string frequency alias offset (see pandas documentation). Dafault: 'D' (daily)
+    :return: pandas DataFrame object with inserted gaps records
+    """
+    # get data from DataFrame
+    in_df = dataframe.copy()
+    # ensure Date field is datetime
+    in_df[date_field] = pd.to_datetime(in_df[date_field])
+    # create start and end values
+    start = in_df[date_field].min()
+    end = in_df[date_field].max()
+    # create the reference date index
+    ref_dates = pd.date_range(start=start, end=end, freq=freq)
+    # create the reference dataset
+    ref_df = pd.DataFrame({'Date':ref_dates})
+    # left join on datasets
+    merge = pd.merge(ref_df, in_df, how='left', left_on='Date', right_on=date_field)
+    return merge
+
+
+def interpolate_gaps(dataframe, var_field, date_field='Date', size=4, type='cubic'):
     """
     This function interpolates gaps on a time series. The maximum gap length for interpolation can
     be defined in the size= parameter. The time scale of series are not relevant.
