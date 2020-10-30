@@ -3,7 +3,7 @@ import pandas as pd
 
 def insert_gaps(dataframe, date_field='Date', freq='D'):
     """
-    This function standardizes a timeseries by inserting the missing gaps as actual records
+    This is a convenience function that standardizes a timeseries by inserting the missing gaps as actual records
     :param dataframe: pandas DataFrame object
     :param date_field: string datefield - Default: 'Date'
     :param freq: string frequency alias offset (see pandas documentation). Dafault: 'D' (daily)

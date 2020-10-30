@@ -36,6 +36,32 @@ import pandas as pd
 import numpy as np
 
 
+def offset_converter(offset):
+    """
+    Convenience function for converting human readable string to pandas default offsets
+    :param offset: string offsets. options:
+
+    hour
+    day
+    month
+    year
+
+    :return: string of pandas default offsets
+    """
+    def_freq = 'D'
+    if offset.strip().lower() == 'day':
+        def_freq = 'D'
+    elif offset.strip().lower() == 'month':
+        def_freq = 'MS'
+    elif offset.strip().lower() == 'year':
+        def_freq = 'AS'
+    elif offset.strip().lower() == 'hour':
+        def_freq = 'H'
+    else:
+        def_freq = offset
+    return def_freq
+
+
 def group_by_month(dataframe, var_field, date_field='Date'):
     """
     This function groups a daily time series into 12 timeseries for each month in the year.
@@ -81,9 +107,9 @@ def group_by_month(dataframe, var_field, date_field='Date'):
     return out_dct
 
 
-def insert_gaps(dataframe, date_field='Date', freq='D'):
+def insert_gaps(dataframe, date_field='Date', freq='day'):
     """
-    This function standardizes a timeseries by inserting the missing gaps as actual records
+    This is a convenience function that standardizes a timeseries by inserting the missing gaps as actual records
     :param dataframe: pandas DataFrame object
     :param date_field: string datefield - Default: 'Date'
     :param freq: string frequency alias offset (see pandas documentation). Dafault: 'D' (daily)
@@ -97,7 +123,8 @@ def insert_gaps(dataframe, date_field='Date', freq='D'):
     start = in_df[date_field].min()
     end = in_df[date_field].max()
     # create the reference date index
-    ref_dates = pd.date_range(start=start, end=end, freq=freq)
+    def_freq = offset_converter(freq)
+    ref_dates = pd.date_range(start=start, end=end, freq=def_freq)
     # create the reference dataset
     ref_df = pd.DataFrame({'Date':ref_dates})
     # left join on datasets
@@ -105,7 +132,7 @@ def insert_gaps(dataframe, date_field='Date', freq='D'):
     return merge
 
 
-def interpolate_gaps(dataframe, var_field, date_field='Date', size=4, type='cubic'):
+def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', type='cubic'):
     """
     This function interpolates gaps on a time series. The maximum gap length for interpolation can
     be defined in the size= parameter. The time scale of series are not relevant.
@@ -114,6 +141,13 @@ def interpolate_gaps(dataframe, var_field, date_field='Date', size=4, type='cubi
     :param var_field: string head of the variable field.
     :param date_field: string head of the date field. Default: 'Date'
     :param size: integer number for maximum gap length to fill. Default is 4.
+    :param freq: string of time scale of time series. Options:
+
+    year
+    month
+    day
+    hout
+
     :param type: string of interpolation tipe (it uses scipy.interpolate.interp1d)
     Default: 'cubic' - cubic spline
 
@@ -137,8 +171,15 @@ def interpolate_gaps(dataframe, var_field, date_field='Date', size=4, type='cubi
     #
     # get data from DataFrame
     in_df = dataframe.copy()
-    def_x = np.array(in_df.index)
-    def_y = in_df[var_field].values
+    in_df[date_field] = pd.to_datetime(in_df[date_field])
+    #
+    # insert all gaps to records
+    gap_df = insert_gaps(in_df, date_field=date_field, freq=freq)
+    # check if the last row is null
+    last_row_bool = gap_df[var_field].isnull().iloc[len(gap_df) -1]
+    # get X and Y from dataframe
+    def_x = np.array(gap_df.index)
+    def_y = gap_df[var_field].values
     #
     # create a boolean of null values
     ybool = (np.isnan(def_y)) * 1
@@ -190,28 +231,51 @@ def interpolate_gaps(dataframe, var_field, date_field='Date', size=4, type='cubi
     # interpolate:
     def_y_new = np.array([])
     for i in range(len(sliced_y)):
+        # get local slices
         lcl_y = sliced_y[i]
         lcl_x = sliced_x[i]
+        # check if there is null values in y slice
         lcl_bool = np.isnan(sliced_y[i])
+        # if all values are null
         if np.sum(lcl_bool) == len(lcl_bool):
+            # append all -> is a blank frame according to the size
             def_y_new = np.append(def_y_new, lcl_y)
+        # if no value is null,
         elif np.sum(lcl_bool) == 0:
+            # append all, is a perfect frame
             def_y_new = np.append(def_y_new, lcl_y)
+        # otherwise, it must be interpolated
         else:
-            # load to DataFrame:
-            def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y})
-            def_df = def_df.dropna(how='any')
-            interf = interp1d(def_df['X'], def_df['Y'], kind=type)  # create a function
-            lcl_y_new = interf(lcl_x)
-            def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y_new})
-            def_y_new = np.append(def_y_new, lcl_y_new)
-    #
-    #
-    out_df = pd.DataFrame({'Date': in_df['Date'], var_field: def_y_new})
+            # if the last row is null and this is the last frame:
+            if last_row_bool and i == len(sliced_y) - 1:
+                # load to DataFrame:
+                stop = len(lcl_x) - 1
+                def_df = pd.DataFrame({'X': lcl_x[:stop], 'Y': lcl_y[:stop]})
+                # drop null values
+                def_df = def_df.dropna(how='any')
+                # create a custom interpolated function
+                interf = interp1d(def_df['X'], def_df['Y'], kind=type)  # create a function
+                lcl_y_new = interf(lcl_x[:stop])  # interpolate
+                #def_df = pd.DataFrame({'X': lcl_x[:stop], 'Y': lcl_y_new})
+                def_y_new = np.append(def_y_new, lcl_y_new)
+                def_y_new = np.append(def_y_new, np.array(np.nan))  # append a null at the end
+            else:
+                # load to DataFrame:
+                def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y})
+                # drop null values
+                def_df = def_df.dropna(how='any')
+                # create a custom interpolated function
+                interf = interp1d(def_df['X'], def_df['Y'], kind=type)  # create a function
+                lcl_y_new = interf(lcl_x)  # interpolate
+                #def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y_new})
+                def_y_new = np.append(def_y_new, lcl_y_new)
+    out_dct = {'Date': gap_df['Date'], var_field + '_Original':def_y, var_field + '_Interpolation': def_y_new}
+    out_df = pd.DataFrame(out_dct)
+    out_df['Date'] = pd.to_datetime(out_df['Date'])
     return out_df
 
 
-def resampler(dataframe, var_field, date_field='Date', type='Month', include_zero=True):
+def resampler(dataframe, var_field, date_field='Date', type='month', include_zero=True):
     """
     This function is the resampler function. It takes a time series and resample variables based on a
     type of time scale.
@@ -222,8 +286,8 @@ def resampler(dataframe, var_field, date_field='Date', type='Month', include_zer
     :param date_field: string head of the date field. Default: 'Date'
     :param type: time scale type of resampling. Options:
 
-    - 'Month' -  Monthly resample
-    - 'Year' - Yearly resample
+    - 'month' -  Monthly resample
+    - 'year' - Yearly resample
 
     :param include_zero: boolean to control if zero value is included or not. Default is to include (True)
     :return: pandas DataFrame object with resampled time series variables:
@@ -245,11 +309,8 @@ def resampler(dataframe, var_field, date_field='Date', type='Month', include_zer
     """
     def_df = dataframe.copy()
     def_df.set_index(date_field, inplace=True)
-    resam_key = ''
-    if type == 'Month':
-        resam_key = 'MS'
-    if type == 'Year':
-        resam_key = 'AS'
+    resam_key = offset_converter(type)
+
     def_out = pd.DataFrame()
     if include_zero:
         na = ''
@@ -270,8 +331,8 @@ def resampler(dataframe, var_field, date_field='Date', type='Month', include_zer
 
 def clear_bad_years(dataframe, var_field, date_field='Date'):
     """
-    This function clears a daily time series from 'bad months', which are
-    considered months with ANY null record.
+    This function clears a daily time series from 'bad years', which are
+    considered years with ANY null record.
 
     :param dataframe: pandas DataFrame object with the 'dirty' daily series
     :param var_field: string head of the variable field.
@@ -350,8 +411,12 @@ def d2m_prec(dataframe, var_field='Prec', date_field='Date'):
      - 'Q75' - Monthly 75% Quantile (exluding zero-values)
 
     """
+    # get data
+    in_df = dataframe.copy()
+    # insert gaps
+    gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
-    def_df = clear_bad_months(dataframe, var_field=var_field, date_field=date_field)
+    def_df = clear_bad_months(gaps_df, var_field=var_field, date_field=date_field)
     # call the resampler function:
     def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Month', include_zero=False)
     return def_out.copy()
@@ -390,8 +455,12 @@ def d2m_flow(dataframe, factor=1.0, var_field='Flow', date_field='Date'):
      - 'Q75' - Monthly 75% Quantile
 
     """
+    # get data
+    in_df = dataframe.copy()
+    # insert gaps
+    gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
-    def_df = clear_bad_months(dataframe, var_field=var_field, date_field=date_field)
+    def_df = clear_bad_months(gaps_df, var_field=var_field, date_field=date_field)
     #
     # Overwrite the variable field to flow units per day
     def_df[var_field] = def_df[var_field].apply(lambda x: x * 86400 * factor)
@@ -426,8 +495,12 @@ def d2m_stage(dataframe, var_field='Stage', date_field='Date'):
      - 'Q75' - Monthly 75% Quantile (exluding zero-values)
 
     """
+    # get data
+    in_df = dataframe.copy()
+    # insert gaps
+    gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
-    def_df = clear_bad_months(dataframe, var_field=var_field, date_field=date_field)
+    def_df = clear_bad_months(gaps_df, var_field=var_field, date_field=date_field)
     #
     # call the resampler function:
     def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Month')
@@ -465,8 +538,12 @@ def d2m_clim(dataframe, var_field, date_field='Date'):
      - 'Q75' - Monthly 75% Quantile (exluding zero-values)
 
     """
+    # get data
+    in_df = dataframe.copy()
+    # insert gaps
+    gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
-    def_df = clear_bad_months(dataframe, var_field=var_field, date_field=date_field)
+    def_df = clear_bad_months(gaps_df, var_field=var_field, date_field=date_field)
     #
     # call the resampler function:
     def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Month')
@@ -503,8 +580,12 @@ def d2y_prec(dataframe, var_field='Prec', date_field='Date'):
      - 'Q75' - Yearly 75% Quantile (exluding zero-values)
 
     """
+    # get data
+    in_df = dataframe.copy()
+    # insert gaps (ensurance protocol)
+    gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
-    def_df = clear_bad_years(dataframe, var_field=var_field, date_field=date_field)
+    def_df = clear_bad_years(gaps_df, var_field=var_field, date_field=date_field)
     #
     # Finally resamples by year
     # call the resampler function:
@@ -545,8 +626,12 @@ def d2y_flow(dataframe, factor=1.0, var_field='Flow', date_field='Date'):
      - 'Q75' - Yearly 75% Quantile
 
     """
-    # clear bad months:
-    def_df = clear_bad_years(dataframe, var_field=var_field, date_field=date_field)
+    # get data
+    in_df = dataframe.copy()
+    # insert gaps
+    gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
+    # clear bad years:
+    def_df = clear_bad_years(gaps_df, var_field=var_field, date_field=date_field)
     #
     # Overwrite the variable field to flow units per day
     def_df[var_field] = def_df[var_field].apply(lambda x: x * 86400 * factor)
@@ -581,8 +666,12 @@ def d2y_stage(dataframe, date_field='Date', var_field='Stage'):
      - 'Q75' - Yearly 75% Quantile (exluding zero-values)
 
     """
-    # clear bad months:
-    def_df = clear_bad_months(dataframe, var_field=var_field, date_field=date_field)
+    # get data
+    in_df = dataframe.copy()
+    # insert gaps
+    gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
+    # clear bad years:
+    def_df = clear_bad_years(gaps_df, var_field=var_field, date_field=date_field)
     #
     # call the resampler function:
     def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Year')
@@ -621,8 +710,12 @@ def d2y_clim(dataframe,  var_field, date_field='Date'):
      - 'Q75' - Yearly 75% Quantile (exluding zero-values)
 
     """
-    # clear bad months:
-    def_df = clear_bad_months(dataframe, var_field=var_field, date_field=date_field)
+    # get data
+    in_df = dataframe.copy()
+    # insert gaps
+    gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
+    # clear bad years:
+    def_df = clear_bad_years(gaps_df, var_field=var_field, date_field=date_field)
     #
     # call the resampler function:
     def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Year')
