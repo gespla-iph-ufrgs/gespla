@@ -22,11 +22,9 @@ Conditions:
     Same license
 
 Module description:
---Download data and metadata functions
---Files are saved in .txt format.
+-- collection of model functions and convenience functions for resample time scale
 
 Authors:
-Marcio Inada: https://github.com/mshigue
 Ipora Possantti: https://github.com/ipo-exe
 
 First commit: 20 of October of 2020
@@ -112,7 +110,13 @@ def insert_gaps(dataframe, date_field='Date', freq='day'):
     This is a convenience function that standardizes a timeseries by inserting the missing gaps as actual records
     :param dataframe: pandas DataFrame object
     :param date_field: string datefield - Default: 'Date'
-    :param freq: string frequency alias offset (see pandas documentation). Dafault: 'D' (daily)
+    :param freq: string frequency of time scale. Default: 'day' (daily) options:
+
+    hour
+    day
+    month
+    year
+
     :return: pandas DataFrame object with inserted gaps records
     """
     # get data from DataFrame
