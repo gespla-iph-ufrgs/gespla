@@ -61,6 +61,44 @@ def offset_converter(offset):
     return def_freq
 
 
+def frequency(dataframe, var_field, zero=True):
+    """
+
+    This fuction performs a frequency analysis on a given time series.
+
+    :param dataframe: pandas DataFrame object with time series
+    :param var_field: string of variable field
+    :param zero: boolean control to consider values of zero. Default: True
+    :return: pandas DataFrame object with the following columns:
+
+     'Pecentiles' - percentiles in % of array values (from 0 to 100 by steps of 1%)
+     'Exeedance' - exeedance probability in % (reverse of percentiles)
+     'Frequency' - count of values on the histogram bin defined by the percentiles
+     'Probability'- local bin empirical probability defined by frequency/count
+     'Values' - values percentiles of bins
+
+    """
+
+    # get dataframe right
+    in_df = dataframe.copy()
+    in_df = in_df.dropna()
+    if zero:
+        pass
+    else:
+        mask = in_df[var_field] != 0
+        in_df = in_df[mask]
+    def_v = in_df[var_field].values
+    print(len(def_v))
+    ptles = np.arange(0, 101, 1)
+    cfc = np.percentile(def_v, ptles)
+    exeed = 100 - ptles
+    freq = np.histogram(def_v, bins=101)[0]
+    prob = freq/np.sum(freq)
+    out_dct = {'Percentiles': ptles, 'Exeedance':exeed, 'Frequency': freq, 'Probability': prob, 'Values':cfc}
+    out_df = pd.DataFrame(out_dct)
+    return out_df
+
+
 def sma(dataframe, var_field, window=7, date_field='Date', freq='month'):
     """
 
