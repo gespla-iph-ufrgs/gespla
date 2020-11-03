@@ -169,7 +169,13 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
     second or third order; 'previous' and 'next' simply return the previous or next value of the point)
     or as an integer specifying the order of the spline interpolator to use.
 
-    :return: pandas DataFrame object with the filled series on the variable column
+    :return: pandas DataFrame object with the following fields:
+
+    'Date' -  datetime of time series
+    'Original' - original variable time series
+    'Interpolation' - interpolated variable time series
+
+
     """
     from scipy.interpolate import interp1d
     #
