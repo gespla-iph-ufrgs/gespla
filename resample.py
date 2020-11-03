@@ -101,7 +101,7 @@ def group_by_month(dataframe, var_field, date_field='Date'):
     out_dct = dict()
     for i in range(len(months)):
         #print(months[i])
-        out_dct[str(i + 1)] = def_gb.get_group(months[i])
+        out_dct[str(months[i])] = def_gb.get_group(months[i])
     return out_dct
 
 
