@@ -100,7 +100,7 @@ def group_by_month(dataframe, var_field, date_field='Date'):
     # built output dictionary:
     out_dct = dict()
     for i in range(len(months)):
-        print(months[i])
+        #print(months[i])
         out_dct[str(i + 1)] = def_gb.get_group(months[i])
     return out_dct
 
@@ -327,14 +327,14 @@ def resampler(dataframe, var_field, date_field='Date', type='month', include_zer
     else:
         na = 0.0
     def_out['Period_Count'] = def_df.resample(resam_key).count()[var_field]
-    def_out[var_field + '_Count'] = def_df.replace(na, np.nan).resample(resam_key).count()[var_field]
-    def_out[var_field + '_Sum'] = def_df.replace(na, np.nan).resample(resam_key).sum()[var_field].replace(0.0, np.nan)
-    def_out[var_field + '_Mean'] = def_df.replace(na, np.nan).resample(resam_key).mean()[var_field]
-    def_out[var_field + '_Min'] = def_df.replace(na, np.nan).resample(resam_key).min()[var_field]
-    def_out[var_field + '_Max'] = def_df.replace(na, np.nan).resample(resam_key).max()[var_field]
-    def_out[var_field + '_Q25'] = def_df.replace(na, np.nan).resample(resam_key).quantile(0.25)[var_field]
-    def_out[var_field + '_Q50'] = def_df.replace(na, np.nan).resample(resam_key).quantile(0.5)[var_field]
-    def_out[var_field + '_Q75'] = def_df.replace(na, np.nan).resample(resam_key).quantile(0.75)[var_field]
+    def_out['Count'] = def_df.replace(na, np.nan).resample(resam_key).count()[var_field]
+    def_out['Sum'] = def_df.replace(na, np.nan).resample(resam_key).sum()[var_field].replace(0.0, np.nan)
+    def_out['Mean'] = def_df.replace(na, np.nan).resample(resam_key).mean()[var_field]
+    def_out['Min'] = def_df.replace(na, np.nan).resample(resam_key).min()[var_field]
+    def_out['Max'] = def_df.replace(na, np.nan).resample(resam_key).max()[var_field]
+    def_out['Q25'] = def_df.replace(na, np.nan).resample(resam_key).quantile(0.25)[var_field]
+    def_out['Q50'] = def_df.replace(na, np.nan).resample(resam_key).quantile(0.5)[var_field]
+    def_out['Q75'] = def_df.replace(na, np.nan).resample(resam_key).quantile(0.75)[var_field]
     def_out.reset_index(inplace=True)
     return def_out
 
