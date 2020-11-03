@@ -558,7 +558,7 @@ def d2m_clim(dataframe, var_field, date_field='Date'):
     # call the resampler function:
     def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Month')
     # drop the Sum field - makes no sense:
-    def_out.drop(var_field + '_Sum', axis='columns', inplace=True)
+    def_out.drop('Sum', axis='columns', inplace=True)
     #
     return def_out.copy()
 
