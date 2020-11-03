@@ -279,7 +279,7 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
                 lcl_y_new = interf(lcl_x)  # interpolate
                 #def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y_new})
                 def_y_new = np.append(def_y_new, lcl_y_new)
-    out_dct = {'Date': gap_df['Date'], var_field + '_Original':def_y, var_field + '_Interpolation': def_y_new}
+    out_dct = {'Date': gap_df['Date'], 'Original':def_y, 'Interpolation': def_y_new}
     out_df = pd.DataFrame(out_dct)
     out_df['Date'] = pd.to_datetime(out_df['Date'])
     return out_df
