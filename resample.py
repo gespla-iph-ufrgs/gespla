@@ -515,7 +515,7 @@ def d2m_stage(dataframe, var_field='Stage', date_field='Date'):
     # call the resampler function:
     def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Month')
     # drop the Sum field - makes no sense:
-    def_out.drop(var_field + '_Sum', axis='columns', inplace=True)
+    def_out.drop('Sum', axis='columns', inplace=True)
     #
     return def_out.copy()
 
@@ -686,7 +686,7 @@ def d2y_stage(dataframe, date_field='Date', var_field='Stage'):
     # call the resampler function:
     def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Year')
     # drop the Sum field - makes no sense:
-    def_out.drop(var_field + '_Sum', axis='columns', inplace=True)
+    def_out.drop('Sum', axis='columns', inplace=True)
     #
     return def_out.copy()
 
@@ -730,7 +730,7 @@ def d2y_clim(dataframe,  var_field, date_field='Date'):
     # call the resampler function:
     def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Year')
     # drop the Sum field - (makes no sense):
-    def_out.drop(var_field + '_Sum', axis='columns', inplace=True)
+    def_out.drop('Sum', axis='columns', inplace=True)
     #
     return def_out.copy()
 
