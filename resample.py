@@ -60,6 +60,40 @@ def offset_converter(offset):
     return def_freq
 
 
+def cut_edges(dataframe, var_field):
+    """
+
+    Utility function to cut off initial and final null records on a given time series
+
+    :param dataframe: pandas DataFrame object
+    :param var_field: string head of the variable field.
+    :return: pandas DataFrame object
+    """
+    # get dataframe
+    in_df = dataframe.copy()
+    def_len = len(in_df)
+    # drop first nan lines
+    drop_ids = list()
+    # loop to collect indexes in the start of series
+    for def_i in range(def_len):
+        aux = in_df[var_field].isnull().iloc[def_i]
+        if aux:
+            drop_ids.append(def_i)
+        else:
+            break
+    # loop to collect indexes in the end of series
+    for def_i in range(def_len - 1, -1, -1):
+        aux = in_df[var_field].isnull().iloc[def_i]
+        if aux:
+            drop_ids.append(def_i)
+        else:
+            break
+    # loop to drop rows:
+    for def_i in range(len(drop_ids)):
+        in_df.drop(drop_ids[def_i], inplace=True)
+    return in_df
+
+
 def group_by_month(dataframe, var_field, date_field='Date'):
     """
     This function groups a daily time series into 12 timeseries for each month in the year.
@@ -81,7 +115,7 @@ def group_by_month(dataframe, var_field, date_field='Date'):
     """
     #
     # get data from DataFrame
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     #
     # ensure datefield is datetime
     in_df['Date'] = pd.to_datetime(in_df['Date'])
@@ -180,13 +214,13 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
     from scipy.interpolate import interp1d
     #
     # get data from DataFrame
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     in_df[date_field] = pd.to_datetime(in_df[date_field])
     #
     # insert all gaps to records
     gap_df = insert_gaps(in_df, date_field=date_field, freq=freq)
-    # check if the last row is null
-    last_row_bool = gap_df[var_field].isnull().iloc[len(gap_df) -1]
+    # cut off null values on the edges:
+    gap_df = cut_edges(gap_df, var_field)
     # get X and Y from dataframe
     def_x = np.array(gap_df.index)
     def_y = gap_df[var_field].values
@@ -256,7 +290,16 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
             def_y_new = np.append(def_y_new, lcl_y)
         # otherwise, it must be interpolated
         else:
-            # if the last row is null and this is the last frame:
+            # load to DataFrame:
+            def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y})
+            # drop null values
+            def_df = def_df.dropna(how='any')
+            # create a custom interpolated function
+            interf = interp1d(def_df['X'], def_df['Y'], kind=type)  # create a function
+            lcl_y_new = interf(lcl_x)  # interpolate
+            # def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y_new})
+            def_y_new = np.append(def_y_new, lcl_y_new)
+            '''# if the last row is null and this is the last frame:
             if last_row_bool and i == len(sliced_y) - 1:
                 # load to DataFrame:
                 stop = len(lcl_x) - 1
@@ -278,7 +321,7 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
                 interf = interp1d(def_df['X'], def_df['Y'], kind=type)  # create a function
                 lcl_y_new = interf(lcl_x)  # interpolate
                 #def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y_new})
-                def_y_new = np.append(def_y_new, lcl_y_new)
+                def_y_new = np.append(def_y_new, lcl_y_new)'''
     out_dct = {'Date': gap_df['Date'], 'Original':def_y, 'Interpolation': def_y_new}
     out_df = pd.DataFrame(out_dct)
     out_df['Date'] = pd.to_datetime(out_df['Date'])
@@ -317,7 +360,7 @@ def resampler(dataframe, var_field, date_field='Date', type='month', include_zer
     Flow_Sum, Flow_Mean, Flow_Min, etc.
 
     """
-    def_df = dataframe.copy()
+    def_df = dataframe[[date_field, var_field]].copy()
     def_df.set_index(date_field, inplace=True)
     resam_key = offset_converter(type)
 
@@ -351,7 +394,7 @@ def clear_bad_years(dataframe, var_field, date_field='Date'):
     """
     pd.options.mode.chained_assignment = None
     # get DataFrame
-    def_df = dataframe.copy()
+    def_df = dataframe[[date_field, var_field]].copy()
     # create a helper year-month field
     def_df['Y'] = def_df[date_field].apply(lambda x: x.strftime('%Y'))
     # get all null dates
@@ -378,7 +421,7 @@ def clear_bad_months(dataframe, var_field, date_field='Date'):
     """
     pd.options.mode.chained_assignment = None
     # get DataFrame
-    def_df = dataframe.copy()
+    def_df = dataframe[[date_field, var_field]].copy()
     #
     # create a helper year-month field
     def_df['Y-M'] = def_df[date_field].apply(lambda x: x.strftime('%B-%Y'))
@@ -422,7 +465,7 @@ def d2m_prec(dataframe, var_field='Prec', date_field='Date'):
 
     """
     # get data
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     # insert gaps
     gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
@@ -466,7 +509,7 @@ def d2m_flow(dataframe, factor=1.0, var_field='Flow', date_field='Date'):
 
     """
     # get data
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     # insert gaps
     gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
@@ -506,7 +549,7 @@ def d2m_stage(dataframe, var_field='Stage', date_field='Date'):
 
     """
     # get data
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     # insert gaps
     gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
@@ -549,7 +592,7 @@ def d2m_clim(dataframe, var_field, date_field='Date'):
 
     """
     # get data
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     # insert gaps
     gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
@@ -591,7 +634,7 @@ def d2y_prec(dataframe, var_field='Prec', date_field='Date'):
 
     """
     # get data
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     # insert gaps (ensurance protocol)
     gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad months:
@@ -637,7 +680,7 @@ def d2y_flow(dataframe, factor=1.0, var_field='Flow', date_field='Date'):
 
     """
     # get data
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     # insert gaps
     gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad years:
@@ -677,7 +720,7 @@ def d2y_stage(dataframe, date_field='Date', var_field='Stage'):
 
     """
     # get data
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     # insert gaps
     gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad years:
@@ -721,7 +764,7 @@ def d2y_clim(dataframe,  var_field, date_field='Date'):
 
     """
     # get data
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     # insert gaps
     gaps_df = insert_gaps(in_df, date_field=date_field, freq='D')
     # clear bad years:

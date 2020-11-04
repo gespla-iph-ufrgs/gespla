@@ -108,7 +108,7 @@ def eval_prediction(dataframe, obs_field, pred_field):
     """
     import statsmodels.tools.eval_measures as metrics
     # get arrays
-    in_df = dataframe.copy()
+    in_df = dataframe[[obs_field, pred_field]].copy()
     in_df.dropna(inplace=True)
     obs = in_df[obs_field].values[:]
     pred = in_df[pred_field].values[:]
@@ -140,7 +140,7 @@ def frequency(dataframe, var_field, zero=True):
     """
 
     # get dataframe right
-    in_df = dataframe.copy()
+    in_df = dataframe[[var_field]].copy()
     in_df = in_df.dropna()
     if zero:
         pass
@@ -184,7 +184,7 @@ def sma(dataframe, var_field, window=7, date_field='Date', freq='month'):
     """
     #
     # get dataframe right
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     in_df.set_index(date_field, inplace=True)
     in_df.index = pd.to_datetime(in_df.index)
     in_df.index.freq = offset_converter(freq)
@@ -228,7 +228,7 @@ def ewma(dataframe, var_field, window=12, date_field='Date', freq='month'):
 
     """
     # get dataframe right
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     in_df.set_index(date_field, inplace=True)
     in_df.index = pd.to_datetime(in_df.index)
     in_df.index.freq = offset_converter(freq)
@@ -276,7 +276,7 @@ def hpfilter(dataframe, var_field, lamb=1600, date_field='Date', freq='month'):
     from statsmodels.tsa.filters.hp_filter import hpfilter
     #
     # get dataframe right
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     in_df.set_index(date_field, inplace=True)
     in_df.index = pd.to_datetime(in_df.index)
     in_df.index.freq = offset_converter(freq)
@@ -294,7 +294,7 @@ def hpfilter(dataframe, var_field, lamb=1600, date_field='Date', freq='month'):
     out_fill_df = insert_gaps(out_df, date_field=date_field, freq=freq)
     return out_fill_df
 
-# todo >>> it does not accept missing values... how to fix?
+
 def ets_decomposition(dataframe, var_field, type='additive', date_field='Date', freq='month'):
     """
 
@@ -327,7 +327,7 @@ def ets_decomposition(dataframe, var_field, type='additive', date_field='Date', 
     """
     from statsmodels.tsa.seasonal import seasonal_decompose
     # get dataframe right
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     in_df.set_index(date_field, inplace=True)
     in_df.index = pd.to_datetime(in_df.index)
     def_freq = offset_converter(freq)
@@ -380,7 +380,7 @@ def ses(dataframe, var_field, date_field='Date', freq='month', span=12):
     from statsmodels.tsa.holtwinters import SimpleExpSmoothing
     #
     # get dataframe right
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     in_df.set_index(date_field, inplace=True)
     in_df.index = pd.to_datetime(in_df.index)
     def_freq = offset_converter(freq)
@@ -442,7 +442,7 @@ def des(dataframe, var_field, date_field='Date', trend='add', freq='month'):
     from statsmodels.tsa.holtwinters import ExponentialSmoothing
     #
     # get dataframe right
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     in_df.set_index(date_field, inplace=True)
     in_df.index = pd.to_datetime(in_df.index)
     def_freq = offset_converter(freq)
@@ -510,7 +510,7 @@ def tes(dataframe, var_field, date_field='Date', trend='add', season='add', seas
     from statsmodels.tsa.holtwinters import ExponentialSmoothing
     #
     # get dataframe right
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     in_df.set_index(date_field, inplace=True)
     in_df.index = pd.to_datetime(in_df.index)
     def_freq = offset_converter(freq)
@@ -535,7 +535,7 @@ def tes(dataframe, var_field, date_field='Date', trend='add', season='add', seas
     return out_fill_df
 
 # todo continue here
-def tes_forecast(dataframe, var_field, forecast=0.2, split=0.8, date_field='Date', trend='add', season='add', season_p=12, freq='month'):
+def tes_forecast(dataframe, var_field, forecast=1, split=0.8, date_field='Date', trend='add', season='add', season_p=12, freq='month'):
     """
 
     This function performs Triple Exponential Smoothing (Holt-Winters Second Order) on a given time series
@@ -577,9 +577,9 @@ def tes_forecast(dataframe, var_field, forecast=0.2, split=0.8, date_field='Date
     # import dependencies:
     from statsmodels.tsa.holtwinters import ExponentialSmoothing
     from statsmodels.tools.eval_measures import rmse
-    '''    #
+    #
     # get dataframe right
-    in_df = dataframe.copy()
+    in_df = dataframe[[date_field, var_field]].copy()
     in_df.set_index(date_field, inplace=True)
     in_df.index = pd.to_datetime(in_df.index)
     def_freq = offset_converter(freq)
@@ -598,23 +598,29 @@ def tes_forecast(dataframe, var_field, forecast=0.2, split=0.8, date_field='Date
     #
     # prediction on the testing horizon:
     test_horizon = full_size - split_id
-    testing_prediction = modelfit.forecast(test_horizon)
-    # todo >>> continue here
-
+    testing_prediction = fitted_model.forecast(test_horizon)
+    # forescast on the forecast horizon:
+    forecast_horizon = test_horizon + test_horizon * forecast
+    forecasting_prediction = fitted_model.forecast(forecast_horizon)
+    print(forecasting_prediction.tail(10))
+    #
+    # retrieve the model values
+    in_df['Training'] = fitted_model.fittedvalues.shift(-1)
+    in_df['Testing'] = testing_prediction
+    in_df['Forecasting'] = forecasting_prediction
     # retrieve the fittet values
-    in_df['TES'] = fitted_model.fittedvalues.shift(-1)
-    # retrieve the fittet values
-    # print(in_df.to_string())
+    print(in_df.tail().to_string())
     # built the output dataframe
     in_df.reset_index(inplace=True)
     out_dct = {'Date': in_df[date_field].values,
                'Signal': in_df[var_field].values,
-               'TES': in_df['TES'].values}
+               'Training': in_df['Training'].values,
+               'Testing': in_df['Testing'].values,
+               'Forecasting':in_df['Testing'].values}
     out_df = pd.DataFrame(out_dct)
     # insert gaps
     out_fill_df = insert_gaps(out_df, date_field=date_field, freq=freq)
-    return out_fill_df'''
-    print()
+    return out_fill_df
 
 
 def arma_forecast(dataframe):
