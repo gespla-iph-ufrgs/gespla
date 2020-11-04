@@ -470,7 +470,7 @@ def des(dataframe, var_field, date_field='Date', trend='add', freq='month'):
 def tes(dataframe, var_field, date_field='Date', trend='add', season='add', season_p=12, freq='month'):
     """
 
-    This function performs Triple Exponential Smoothing (Holt-Winters Second Order) on a given time series
+    This function performs Triple Exponential Smoothing (Holt-Winters Third Order) on a given time series
 
     :param dataframe: pandas DataFrame object with time series
     :param var_field: string of variable field
@@ -535,10 +535,105 @@ def tes(dataframe, var_field, date_field='Date', trend='add', season='add', seas
     return out_fill_df
 
 
+def des_forecast(dataframe, var_field, forecast=1, split=0.8, date_field='Date', trend='add', freq='month'):
+    """
+
+    This function performs Double Exponential Smoothing (Holt-Winters Second Order) fit and forecast
+     on a given time series
+
+    :param dataframe: pandas DataFrame object with time series
+    :param var_field: string of variable field
+    :param forecast: multiplier of the testing horizon for forecast horizon. Default=1
+
+    forecast_horizon = test_horizon + forecast * test_horizon
+
+    :param split: fraction of the split (must be less than 1). Default=0.8 (80% for training and 20% for testing)
+    :param date_field: string of date field. Default is 1600
+    :param trend: string code for type of trend model. Default: 'add'
+    options:
+
+    'add' - Additive trend model
+    'mul' - Multiplicative trend model
+
+    :param freq: string frequency of time scale. Default: 'month'
+    options:
+
+    hour
+    day
+    month
+    year
+
+    :return: DataFrame object with time series with 5 columns:
+
+    'Date' - dates
+    'Signal' - observed values of time series
+    'Training' -  Double Exponential Smoothing values of the training set
+    'Testing' - Double Exponential Smoothing values of the testing set
+    'Forecasting' - Double Exponential Smoothing values of the forecasting set
+
+    External dependency: Statsmodels
+
+    """
+    #
+    # import dependencies:
+    from statsmodels.tsa.holtwinters import ExponentialSmoothing
+    from statsmodels.tools.eval_measures import rmse
+    #
+    # get dataframe right
+    in_df = dataframe[[date_field, var_field]].copy()
+    in_df.set_index(date_field, inplace=True)
+    in_df.index = pd.to_datetime(in_df.index)
+    def_freq = offset_converter(freq)
+    in_df.index.freq = def_freq
+    in_df.dropna(inplace=True)
+    #
+    # Spliting
+    full_size = len(in_df[var_field])
+    split_id = int(full_size * split)
+    training_set = in_df.iloc[:split_id]
+    testing_set = in_df.iloc[split_id:]
+    #
+    # fit the training model:
+    model = ExponentialSmoothing(training_set[var_field], trend=trend)
+    fitted_model = model.fit()
+    #
+    # prediction on the testing horizon:
+    test_horizon = full_size - split_id
+    testing_prediction = fitted_model.forecast(test_horizon)
+    #
+    # forescast on the forecast horizon:
+    forecast_horizon = test_horizon + test_horizon * forecast
+    forecasting_prediction = fitted_model.forecast(forecast_horizon)
+    #
+    # *** Output stuff ***
+    # set the forecast dataframe
+    forecast_df = pd.DataFrame(forecasting_prediction, columns=['Forecasting'])
+    forecast_df.index = forecast_df.index.set_names(['Date1'])
+    forecast_df.reset_index(inplace=True)
+    #
+    # set the observed dataframe
+    in_df['Training'] = fitted_model.fittedvalues.shift(-1)
+    in_df['Testing'] = testing_prediction
+    in_df.index = in_df.index.set_names(['Date0'])
+    in_df.reset_index(inplace=True)
+    #    #
+    # set the reference dataframe
+    min_tpl = (in_df['Date0'].min(), forecast_df['Date1'].min())
+    max_tpl = (in_df['Date0'].max(), forecast_df['Date1'].max())
+    full_dates = pd.date_range(start=min(min_tpl), end=max(max_tpl), freq=def_freq)
+    ref_df = pd.DataFrame({'Date': full_dates})
+    #
+    # built the output dataframe
+    merged = pd.merge(ref_df, in_df, how='left', left_on='Date', right_on='Date0').drop('Date0', axis='columns')
+    merged = pd.merge(merged, forecast_df, how='left', left_on='Date', right_on='Date1').drop('Date1', axis='columns')
+    merged.rename(mapper={var_field:'Signal'}, axis=1, inplace=True)
+    return merged
+
+
 def tes_forecast(dataframe, var_field, forecast=1, split=0.8, date_field='Date', trend='add', season='add', season_p=12, freq='month'):
     """
 
-    This function performs Triple Exponential Smoothing (Holt-Winters Second Order) fit and forecast
+    This function performs Triple Exponential Smoothing (Holt-Winters Third Order) fit and forecast
      on a given time series
 
     :param dataframe: pandas DataFrame object with time series
