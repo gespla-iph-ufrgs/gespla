@@ -523,7 +523,6 @@ def tes(dataframe, var_field, date_field='Date', trend='add', season='add', seas
     # retrieve the fittet values
     in_df['TES'] = fitted_model.fittedvalues.shift(-1)
     # retrieve the fittet values
-    # print(in_df.to_string())
     # built the output dataframe
     in_df.reset_index(inplace=True)
     out_dct = {'Date': in_df[date_field].values,
@@ -718,7 +717,7 @@ def tes_forecast(dataframe, var_field, forecast=1, split=0.8, date_field='Date',
     in_df['Testing'] = testing_prediction
     in_df.index = in_df.index.set_names(['Date0'])
     in_df.reset_index(inplace=True)
-    #    #
+    #
     # set the reference dataframe
     min_tpl = (in_df['Date0'].min(), forecast_df['Date1'].min())
     max_tpl = (in_df['Date0'].max(), forecast_df['Date1'].max())
@@ -732,15 +731,55 @@ def tes_forecast(dataframe, var_field, forecast=1, split=0.8, date_field='Date',
     return merged
 
 
-def arma_forecast(dataframe):
+def arma(dataframe, var_field, p, q, date_field='Date'):
+    #
+    # import dependencies:
+    from statsmodels.tsa.arima_model import ARMA, ARMAResults
+    #
+    # get dataframe right
+    in_df = dataframe[[date_field, var_field]].copy()
+    in_df.set_index(date_field, inplace=True)
+    in_df.index = pd.to_datetime(in_df.index)
+    def_freq = offset_converter(freq)
+    in_df.index.freq = def_freq
+    in_df.dropna(inplace=True)
+    #
+    # fit model:
+    model = ARMA(in_df[var_field], order=(p, q))
+    fitted_model = model.fit()
+    #
+    # retrieve the fittet values
+    in_df['ARIMA'] = fitted_model.fittedvalues.shift(-1)
+    #
+    #
+    # built the output dataframe
+    in_df.reset_index(inplace=True)
+    out_dct = {'Date': in_df[date_field].values,
+               'Signal': in_df[var_field].values,
+               'ARIMA': in_df['ARIMA'].values}
+    out_df = pd.DataFrame(out_dct)
+    # insert gaps
+    out_fill_df = insert_gaps(out_df, date_field=date_field, freq=freq)
+    return out_fill_df
+
+
+def arima(dataframe, var_field, date_field='Date'):
     print()
 
 
-def arima_forecast(dataframe):
+def sarima(dataframe, var_field, date_field='Date'):
     print()
 
 
-def sarima_forecast(dataframe):
+def arma_forecast(dataframe, var_field, forecast=1, date_field='Date'):
+    print()
+
+
+def arima_forecast(dataframe, var_field, forecast=1, date_field='Date'):
+    print()
+
+
+def sarima_forecast(dataframe, var_field, forecast=1, date_field='Date'):
     print()
 
 

@@ -104,13 +104,11 @@ def group_by_month(dataframe, var_field, date_field='Date'):
     :return: dictionary of dataframes for daily timeseries of each month.
 
     Keys of dicitonary:
-    '1' - January
-    '2' - February
-    '3' - March
-
+    - January
+    - February
+    - March
     ...
-
-    '12' - December
+    - December
 
     """
     #
@@ -332,7 +330,6 @@ def resampler(dataframe, var_field, date_field='Date', type='month', include_zer
     """
     This function is the resampler function. It takes a time series and resample variables based on a
     type of time scale.
-
 
     :param dataframe: pandas DataFrame object
     :param var_field: string head of the variable field.

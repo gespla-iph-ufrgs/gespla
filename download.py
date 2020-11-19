@@ -332,7 +332,7 @@ def metadata_ana_rhn_inventory(folder='.'):
         index += 1
     #
     df_hidro.rename(mapper={'Codigo': 'CodEstacao'}, axis='columns', inplace=True)  # rename 'Codigo' by 'CodEstacao'
-    df['CodEstacao'] = df['CodEstacao'].astype(str)
+    df_hidro['CodEstacao'] = df_hidro['CodEstacao'].astype(str)
     df_hidro.sort_index(inplace=True)
     #
     # Exporta os dados para o arquivo CSV (txt)
