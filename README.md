@@ -66,6 +66,7 @@ import load
 * [Pandas](https://pandas.pydata.org/)
 * [Matplotlib](https://matplotlib.org/)
 * [Scipy](https://www.scipy.org/)
+* [Statsmodels](https://www.statsmodels.org)
 * [tdqm](https://github.com/tqdm/tqdm)
 * [HydroBR](https://github.com/wallissoncarvalho/hydrobr)
 
@@ -105,8 +106,16 @@ Functions defined in a single module may depend on other local functions. Unless
 
 ## Functions documentation
 Fuctions (and related returns and parameters) are fully documented by `docstrings`. A `docstring` is an extended comment in the heading of the function. You can read it by:
-1) Simply finding the `docstring` in the code, or;
-2) Printing the `.__doc__` attribute on screen. Example:
+1) Simply finding the `docstring` in the code;
+2) Call the buil-in function `help()` passing the function name to it. Example:
+```python
+from download import metadata_ana_flow  # this imports the function called metadata_ana_flow
+
+# call the docstring by the help() function:
+help(metadata_ana_flow)
+```
+
+3) Printing the `.__doc__` attribute on screen. Example:
 ```python
 from download import metadata_ana_flow  # this imports the function called metadata_ana_flow
 
@@ -114,7 +123,7 @@ from download import metadata_ana_flow  # this imports the function called metad
 print(metadata_ana_flow.__doc__)
 ```
 
-## `download.py`
+## `download.py` - Download data and metadata to a CSV file
 This module stores functions for download data and metadata. Files are saved in `.txt` format in a directory specifyed in the `folder=` parameter. If not passed, the default directory is the current folder of the python file calling the function. All functions return the string of the saved file path.
 
 General dependencies:
@@ -145,9 +154,9 @@ my_file = download.metadata_ana_flow(folder='C:/Datasets/ANA/')
 print('The file was saved in: {}'.format(my_file))
 ```
 
-## `load.py`
+## `load.py` - Get a DataFrame to work with
 
-This module stores functions for loading data stored on files created by other modules, such as the `download.py` module. Each function of `download.py` has a counterpart in `load.py`.
+This module stores functions for loading data stored on files created by the `download.py` module. Most of `download.py` has a counterpart in `load.py`.
 
 The data in the files are loaded to a `DataFrame` object. This procedure allows the data processing using the `pandas` library.
 
@@ -160,6 +169,9 @@ List of current functions:
 * `.ana_prec(file)` - loads to `DataFrame` the precipitation data from a single precipitation station of ANA.
 * `.inmet_daily(file)` - loads to `DataFrame` the daily climate data from a single climate station of INMET. See docstring for variables.
 * `.inmet_hourly(file)` - loads to `DataFrame` the hourly climate data from a single climate station of INMET. See docstring for variables.
+* `.metadata_ana_flow(file)` - loads to `DataFrame` the metadata of flow/stage stations of ANA. 
+* `.metadata_ana_prec(file)` - loads to `DataFrame` the metadata of precipitations stations of ANA.
+* `.metadata_inmet(file)` - loads to `DataFrame` the metadata of climate stations of INMET.
 
 Example:
 
@@ -181,34 +193,41 @@ print(df.head(4).to_string())
 
 ```
 
-## `resample.py`
+## `resample.py` - Interpolate and Aggregate Time Variables
 
-This module stores functions for resampling time series, such as from daily to monthly. The input data is passed as a `DataFrame` object so the functions process it and then returns a `DataFrame` object containing the new time series. The returned monthly variables are:
+This module stores functions for resampling time series, such as from daily to monthly. The input data is passed as a `DataFrame` object so the functions process it and then returns a new `DataFrame` object containing the new time series. The returned aggregated variables are:
 
-* Sum (only flow and precipitation);
-* Mean;
-* Min;
-* Max;
-* Q25;
-* Q50 (Median);
-* Q75.
+* Periods count  - number of periods aggregated
+* Count  - number of valid records aggregated
+* Sum
+* Mean
+* Min
+* Min
+* Max
+* Q25 -  quantile 25
+* Q50 - quantile 50 (median)
+* Q75 - quantile 75
 
 General dependencies:
 * [Pandas](https://pandas.pydata.org/)
 * [Numpy](https://numpy.org/)
 
 List of current functions:
-* `.d2m_prec()` - resamples precipitation time series from daily to monthly. 
-* `.d2m_flow()` - resamples flow time series from daily to monthly.
-* `.d2m_stage()` - resamples stage time series from daily to monthly.
-* `.d2m_clim()` - resamples climate variable time series from daily to monthly.
-* `.d2y_prec()` - resamples precipitation time series from daily to yearly. 
-* `.d2y_flow()` - resamples flow time series from daily to yearly.
-* `.d2y_stage()` - resamples stage time series from daily to yearly.
-* `.d2y_clim()` - resamples climate variable time series from daily to yearly.
-* `.clear_bad_months()` - removes from the time series months that have null records (gaps).
-* `.clear_bad_years()` - removes from the time series years that have null records (gaps).
-* `.resampler()` - this function is the module resampler function called.
+* `.d2m_prec(dataframe)` - resamples precipitation time series from daily to monthly. 
+* `.d2m_flow(dataframe)` - resamples flow time series from daily to monthly.
+* `.d2m_stage(dataframe)` - resamples stage time series from daily to monthly.
+* `.d2m_clim(dataframe)` - resamples climate variable time series from daily to monthly.
+* `.d2y_prec(dataframe)` - resamples precipitation time series from daily to yearly. 
+* `.d2y_flow(dataframe)` - resamples flow time series from daily to yearly.
+* `.d2y_stage(dataframe)` - resamples stage time series from daily to yearly.
+* `.d2y_clim(dataframe)` - resamples climate variable time series from daily to yearly.
+* `.insert_gaps(dataframe)` - insert null records in missing date gaps of time series.
+* `.interpolate_gaps(dataframe)` - interpolates size-defined gaps of null records on a time series.
+* `.clear_bad_months(dataframe)` - removes from the time series months that have null records (gaps).
+* `.clear_bad_years(dataframe)` - removes from the time series years that have null records (gaps).
+* `.resampler(dataframe)` - this function is the module utility resampler function.
+* `.group_by_month(dataframe)` - this function groups a daily time series into 12 timeseries for each month in the year.
+
 
 Example:
 ```python
@@ -222,20 +241,62 @@ f = 1 / 1000000  # this converts m3/month to hm3/month
 # call the d2m_flow() function:
 df_m = resample.d2m_flow(dataframe=df_d, factor=f)
 # print on screen the first 4 lines of the DataFrame:
-print(df.head(4).to_string())
+print(df_m.head(4).to_string())
 
 [out:]
-        Date         Sum         Mean        Max       Min        Q25        Q50        Q75
-0 1993-04-01  30424.8960  1014.163200  1125.9648  874.8864   929.9232  1024.8768  1104.7968
-1 1993-05-01  33377.7024  1076.700077  1132.0128  996.3648  1026.7776  1095.7248  1127.7792
-2 1993-06-01  27308.9664   910.298880   994.4640  805.9392   835.8768   936.5760   966.5136
-3 1993-07-01  24485.7600   789.863226   831.3408  710.3808   766.6272   807.1488   819.2448
+        Date  Period_Count  Count         Sum       Mean       Min        Max       Q25        Q50        Q75
+0 1964-12-01             0      0         NaN        NaN       NaN        NaN       NaN        NaN        NaN
+1 1965-01-01            31     31  193.509216   6.242233  3.556466  10.630310  4.321797   5.854058   7.606224
+2 1965-02-01            28     28  241.351816   8.619708  4.596998  12.337056  5.997519   9.404813  10.810994
+3 1965-03-01            31     31  332.557963  10.727676  5.712310  16.852925  9.092995  10.630310  12.254717
+
+```
+
+## `tsa.py` - Time Series Analysis
+
+This module stores functions for time series analysis, such as frequency analysis and ETS decomposition. The input data is passed as a `DataFrame` object so the functions process it and then returns a new `DataFrame` object containing the new time series/objects.
+
+General dependencies:
+* [Pandas](https://pandas.pydata.org/)
+* [Numpy](https://numpy.org/)
+* [Statsmodels](https://www.statsmodels.org)
+
+List of current functions:
+* `.frequency(dataframe)` - Get a dataframe with Percentiles, Exceedance Probability, Frequency and Empirical Probability of a time series.
+* `.sma(dataframe)` - Get the Simple Moving Average time series of a defined period window.
+* `.ewma(dataframe)` - Get the Exponential Weighting Moving Average of a defined period window.
+* `.hpfilter(dataframe)` - This functions performs the Hodrick-Prescott Filter on time series.
+* `.ets_decomposition(dataframe)` - This functions performs the ETS (Error, Trend, Seasonality) Decomposition on time series.
+* `.ses(dataframe)` - This function performs Simple Exponential Smoothing (Holt Linear) on a given time series.
+* `.des(dataframe)` - This function performs Double Exponential Smoothing (Holt-Winters Second Order) on a given time series
+* `.tes(dataframe)` - This function performs Triple Exponential Smoothing (Holt-Winters Third Order) on a given time series
+* `.des_forecast(dataframe)` - This function performs Double Exponential Smoothing (Holt-Winters Second Order) fit and forecast on a given time series
+* `.tes_forecast(dataframe)` - This function performs Triple Exponential Smoothing (Holt-Winters Third Order) fit and forecast on a given time series
+
+
+Example:
+```python
+[in:]
+import load, tsa  # this imports the load and tsa modules
+
+# load to DataFrame the timeseries of flow data:
+df_d = load.ana_flow(file='./samples/ANA-flow_20200000_1964-2020__by-2020-10-27.txt')
+
+df_freq = tsa.frequency(df_d, 'Flow')
+print(df_freq.head(4).to_string())
+
+[out:]
+   Percentiles  Exeedance  Frequency  Probability  Values
+0            0        100       1515     0.074900  1.3366
+1            1         99       3531     0.174569  5.2180
+2            2         98       2938     0.145251  6.5130
+3            3         97       2193     0.108419  7.4166
 
 ```
 
 
 ## `visuals.py`
 
----- A module for standard data visualisation
+---- A module for standard data visualisation -  to be developed.
 
 
