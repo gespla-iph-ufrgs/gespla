@@ -148,7 +148,6 @@ def frequency(dataframe, var_field, zero=True):
         mask = in_df[var_field] != 0
         in_df = in_df[mask]
     def_v = in_df[var_field].values
-    print(len(def_v))
     ptles = np.arange(0, 101, 1)
     cfc = np.percentile(def_v, ptles)
     exeed = 100 - ptles
