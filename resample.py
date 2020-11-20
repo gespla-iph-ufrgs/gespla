@@ -94,13 +94,14 @@ def cut_edges(dataframe, var_field):
     return in_df
 
 
-def group_by_month(dataframe, var_field, date_field='Date'):
+def group_by_month(dataframe, var_field, date_field='Date', zeros=True):
     """
     This function groups a daily time series into 12 timeseries for each month in the year.
 
     :param dataframe: pandas DataFrame object. The date field must be in a column, not the index.
     :param var_field: string head of the variable field.
     :param date_field: string head of the date field. Default: 'Date'
+    :param zeros: boolean control to consider values of zero. Default: True
     :return: dictionary of dataframes for daily timeseries of each month.
 
     Keys of dicitonary:
@@ -133,7 +134,12 @@ def group_by_month(dataframe, var_field, date_field='Date'):
     out_dct = dict()
     for i in range(len(months)):
         #print(months[i])
-        out_dct[str(months[i])] = def_gb.get_group(months[i])
+        lcl_df = def_gb.get_group(months[i])
+        if zeros:
+            out_dct[str(months[i])] = lcl_df
+        else:
+            mask = lcl_df[var_field] != 0
+            out_dct[str(months[i])] = lcl_df[mask]
     return out_dct
 
 
