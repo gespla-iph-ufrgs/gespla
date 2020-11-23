@@ -188,7 +188,7 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
     year
     month
     day
-    hout
+    hour
 
     :param type: string of interpolation tipe (it uses scipy.interpolate.interp1d)
     Default: 'cubic' - cubic spline
