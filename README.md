@@ -275,22 +275,47 @@ List of current functions:
 
 
 Example:
+
 ```python
-[in:]
+[ in:]
 import load, tsa  # this imports the load and tsa modules
 
 # load to DataFrame the timeseries of flow data:
-df_d = load.ana_flow(file='./samples/ANA-flow_20200000_1964-2020__by-2020-10-27.txt')
+df_d = load.ana_flow(file='samples/MISC/ANA-flow_20200000_1964-2020__by-2020-10-27.txt')
 
 df_freq = tsa.frequency(df_d, 'Flow')
 print(df_freq.head(4).to_string())
 
 [out:]
-   Percentiles  Exeedance  Frequency  Probability  Values
-0            0        100       1515     0.074900  1.3366
-1            1         99       3531     0.174569  5.2180
-2            2         98       2938     0.145251  6.5130
-3            3         97       2193     0.108419  7.4166
+Percentiles
+Exeedance
+Frequency
+Probability
+Values
+0
+0
+100
+1515
+0.074900
+1.3366
+1
+1
+99
+3531
+0.174569
+5.2180
+2
+2
+98
+2938
+0.145251
+6.5130
+3
+3
+97
+2193
+0.108419
+7.4166
 
 ```
 

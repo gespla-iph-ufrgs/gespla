@@ -64,6 +64,62 @@ def offset_converter(offset):
     return def_freq
 
 
+def compare(dataframes, var_fields, labels, start='full', end='full', date_field='Date', freq='day'):
+    """
+    Compare fields between dataframes on a single time series
+    :param dataframes: iterable of dataframes
+    :param var_fields: iterable of strings of fields to compare in dataframes (same length)
+    :param labels: iterable of labels to append to each dataframe field (same length)
+    :param start: string of start date or 'full' to get the minimal date
+    :param end: string of end date or 'full' to get the maximal date
+    :param date_field: common date field
+    :param freq: string frequency of time scale. Default: 'day' (daily) options:
+
+    hour
+    day
+    month
+    year
+    :return: dataframe of compared time series and a 'Deficit' index field of missing data (1 is fully missing)
+    """
+    if start == 'full':
+        start_lst = list()
+        for i in range(len(dataframes)):
+            lcl_df = dataframes[i]
+            start_lst.append(lcl_df[date_field].min())
+        start = pd.to_datetime(start_lst).min()
+    if end == 'full':
+        end_lst = list()
+        for i in range(len(dataframes)):
+            lcl_df = dataframes[i]
+            end_lst.append(lcl_df[date_field].max())
+        end = pd.to_datetime(end_lst).max()
+    # create the reference date index
+    def_freq = offset_converter(freq)
+    ref_dates = pd.date_range(start=start, end=end, freq=def_freq)
+    # create the reference dataset
+    ref_df = pd.DataFrame({'Date': ref_dates})
+    for i in range(len(dataframes)):
+        lcl_df = dataframes[i].copy()
+        lcl_df = lcl_df[[date_field, var_fields[i]]]
+        lcl_df.columns = [date_field, var_fields[i] + '_' + labels[i]]
+        # left join on datasets
+        if i == 0:
+            merge = pd.merge(ref_df, lcl_df, how='left', left_on='Date', right_on=date_field)
+        else:
+            merge = pd.merge(merge, lcl_df, how='left', left_on='Date', right_on=date_field)
+    # compute data deficit
+    total = len(merge.columns) - 1
+    print(total)
+    for i in range(1, len(merge.columns)):
+        if i == 1:
+            accum = 1 * np.isnan(merge[merge.columns.values[i]].values)
+        else:
+            accum = accum + (1 * np.isnan(merge[merge.columns.values[i]].values))
+    merge['Deficit'] = accum / total
+    return merge
+
+
+
 def insert_gaps(dataframe, date_field='Date', freq='month'):
     """
     This is a convenience function that standardizes a timeseries by inserting the missing gaps as actual records
