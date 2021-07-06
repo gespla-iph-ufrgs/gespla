@@ -119,7 +119,6 @@ def compare(dataframes, var_fields, labels, start='full', end='full', date_field
     return merge
 
 
-
 def insert_gaps(dataframe, date_field='Date', freq='month'):
     """
     This is a convenience function that standardizes a timeseries by inserting the missing gaps as actual records

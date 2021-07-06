@@ -217,7 +217,7 @@ def metadata_ana_telemetry(folder='.'):
             df_telemetrica.at[index, column] = getattr(station.find(column), 'text', None)
         index += 1
     #
-    df['CodEstacao'] = df['CodEstacao'].astype(str)
+    df_telemetrica['CodEstacao'] = df_telemetrica['CodEstacao'].astype(str)
     df_telemetrica.sort_index(inplace=True)
     #
     # Exporta os dados para o arquivo CSV (txt)
