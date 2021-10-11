@@ -225,7 +225,7 @@ def monthly_rmsi(dataframe, var_field, date_field='Date'):
     :param dataframe: pandas dataframe time daily time series
     :param var_field: string variable field
     :param date_field: string date field
-    :return: pandas dataframe monthly timeseries of Date, Mean, Month, Month_Median, RMC and RMSI
+    :return: pandas dataframe monthly timeseries of Date, Mean, Month_Median, RMC and RMSI
     """
     import resample
     # extrair o dataframe
@@ -265,7 +265,8 @@ def monthly_rmsi(dataframe, var_field, date_field='Date'):
     # definir o RMSI
     _month_rmsi_df['RMSI'] = _month_rmsi_df['RMC'].values * (_month_rmsi_df['RMC'].values <= 0)
     #
-    #
+    # remover o campo auxiliar
+    _month_rmsi_df.drop('Month', inplace=True)
     return _month_rmsi_df
 
 
