@@ -174,7 +174,7 @@ def insert_gaps(dataframe, date_field='Date', freq='day'):
     return merge
 
 
-def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', type='cubic'):
+def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', kind='cubic'):
     """
     This function interpolates gaps on a time series. The maximum gap length for interpolation can
     be defined in the size= parameter. The time scale of series are not relevant.
@@ -190,7 +190,7 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
     day
     hour
 
-    :param type: string of interpolation tipe (it uses scipy.interpolate.interp1d)
+    :param kind: string of interpolation tipe (it uses scipy.interpolate.interp1d)
     Default: 'cubic' - cubic spline
 
     Options (from scipy docs - https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html )
@@ -299,7 +299,7 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
             # drop null values
             def_df = def_df.dropna(how='any')
             # create a custom interpolated function
-            interf = interp1d(def_df['X'], def_df['Y'], kind=type)  # create a function
+            interf = interp1d(def_df['X'], def_df['Y'], kind=kind)  # create a function
             lcl_y_new = interf(lcl_x)  # interpolate
             # def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y_new})
             def_y_new = np.append(def_y_new, lcl_y_new)
@@ -332,7 +332,7 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
     return out_df
 
 
-def resampler(dataframe, var_field, date_field='Date', type='month', include_zero=True):
+def resampler(dataframe, var_field, date_field='Date', kind='month', include_zero=True):
     """
     This function is the resampler function. It takes a time series and resample variables based on a
     type of time scale.
@@ -340,7 +340,7 @@ def resampler(dataframe, var_field, date_field='Date', type='month', include_zer
     :param dataframe: pandas DataFrame object
     :param var_field: string head of the variable field.
     :param date_field: string head of the date field. Default: 'Date'
-    :param type: time scale type of resampling. Options:
+    :param kind: time scale type of resampling. Options:
 
     - 'month' -  Monthly resample
     - 'year' - Yearly resample
@@ -365,7 +365,7 @@ def resampler(dataframe, var_field, date_field='Date', type='month', include_zer
     """
     def_df = dataframe[[date_field, var_field]].copy()
     def_df.set_index(date_field, inplace=True)
-    resam_key = offset_converter(type)
+    resam_key = offset_converter(kind)
 
     def_out = pd.DataFrame()
     if include_zero:
@@ -474,7 +474,7 @@ def d2m_prec(dataframe, var_field='Prec', date_field='Date'):
     # clear bad months:
     def_df = clear_bad_months(gaps_df, var_field=var_field, date_field=date_field)
     # call the resampler function:
-    def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Month', include_zero=False)
+    def_out = resampler(def_df, var_field=var_field, date_field=date_field, kind='Month', include_zero=False)
     return def_out.copy()
 
 
@@ -522,7 +522,7 @@ def d2m_flow(dataframe, factor=1.0, var_field='Flow', date_field='Date'):
     def_df[var_field] = def_df[var_field].apply(lambda x: x * 86400 * factor)
     #
     # call the resampler function:
-    def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Month')
+    def_out = resampler(def_df, var_field=var_field, date_field=date_field, kind='Month')
     return def_out.copy()
 
 
@@ -559,7 +559,7 @@ def d2m_stage(dataframe, var_field='Stage', date_field='Date'):
     def_df = clear_bad_months(gaps_df, var_field=var_field, date_field=date_field)
     #
     # call the resampler function:
-    def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Month')
+    def_out = resampler(def_df, var_field=var_field, date_field=date_field, kind='Month')
     # drop the Sum field - makes no sense:
     def_out.drop('Sum', axis='columns', inplace=True)
     #
@@ -602,7 +602,7 @@ def d2m_clim(dataframe, var_field, date_field='Date'):
     def_df = clear_bad_months(gaps_df, var_field=var_field, date_field=date_field)
     #
     # call the resampler function:
-    def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Month')
+    def_out = resampler(def_df, var_field=var_field, date_field=date_field, kind='Month')
     # drop the Sum field - makes no sense:
     def_out.drop('Sum', axis='columns', inplace=True)
     #
@@ -645,7 +645,7 @@ def d2y_prec(dataframe, var_field='Prec', date_field='Date'):
     #
     # Finally resamples by year
     # call the resampler function:
-    def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Year', include_zero=False)
+    def_out = resampler(def_df, var_field=var_field, date_field=date_field, kind='Year', include_zero=False)
     return def_out.copy()
 
 
@@ -693,7 +693,7 @@ def d2y_flow(dataframe, factor=1.0, var_field='Flow', date_field='Date'):
     def_df[var_field] = def_df[var_field].apply(lambda x: x * 86400 * factor)
     #
     # call the resampler function:
-    def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Year')
+    def_out = resampler(def_df, var_field=var_field, date_field=date_field, kind='Year')
     return def_out.copy()
 
 
@@ -730,7 +730,7 @@ def d2y_stage(dataframe, date_field='Date', var_field='Stage'):
     def_df = clear_bad_years(gaps_df, var_field=var_field, date_field=date_field)
     #
     # call the resampler function:
-    def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Year')
+    def_out = resampler(def_df, var_field=var_field, date_field=date_field, kind='Year')
     # drop the Sum field - makes no sense:
     def_out.drop('Sum', axis='columns', inplace=True)
     #
@@ -774,7 +774,7 @@ def d2y_clim(dataframe,  var_field, date_field='Date'):
     def_df = clear_bad_years(gaps_df, var_field=var_field, date_field=date_field)
     #
     # call the resampler function:
-    def_out = resampler(def_df, var_field=var_field, date_field=date_field, type='Year')
+    def_out = resampler(def_df, var_field=var_field, date_field=date_field, kind='Year')
     # drop the Sum field - (makes no sense):
     def_out.drop('Sum', axis='columns', inplace=True)
     #

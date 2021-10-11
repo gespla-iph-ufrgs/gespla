@@ -193,7 +193,6 @@ def frequency(dataframe, var_field, zero=True):
      'Values' - values percentiles of bins
 
     """
-
     # get dataframe right
     in_df = dataframe[[var_field]].copy()
     in_df = in_df.dropna()
