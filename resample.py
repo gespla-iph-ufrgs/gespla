@@ -94,6 +94,55 @@ def cut_edges(dataframe, var_field):
     return in_df
 
 
+def clip_longest(dataframe, varfield, date_field='Date'):
+    """
+    Clip out just the longest continous series without gaps (null values)
+    :param dataframe: pandas dataframe
+    :param varfield: string of variable field
+    :param date_field: string of date field
+    :return: pandas dataframe of date and variable
+    """
+    _df = dataframe[[date_field, varfield]].copy()
+    _df['NotGap'] = 1.0 * (1 != pd.isnull(_df[varfield]))
+    not_gap = _df['NotGap'].values
+    end_dates = list()
+    start_dates = list()
+    count = list()
+    start_couting = False
+    counter = 0
+    for i in range(0, len(_df)):
+        # priming
+        if i == 0:
+            if not_gap[i] == 1:
+                start_couting = True
+                start_dates.append(_df[date_field].values[i])
+        # middle
+        elif i > 0 and i < len(_df) - 1:
+            # start to count
+            if not_gap[i] == 1 and not_gap[i - 1] == 0:
+                start_couting = True
+                start_dates.append(_df[date_field].values[i])
+            # stopping in the middle
+            elif not_gap[i] == 0 and not_gap[i - 1] == 1:
+                start_couting = False
+                end_dates.append(_df[date_field].values[i - 1])
+                count.append(counter)
+                counter = 0
+        # tail
+        elif i == len(_df) - 1:
+            if not_gap[i] == 1 and not_gap[i - 1] == 1:
+                end_dates.append(_df[date_field].values[i - 1])
+                count.append(counter)
+        # counter
+        if start_couting:
+            counter = counter + 1
+    count_df = pd.DataFrame({'StartDate': start_dates, 'EndDate': end_dates, 'Size': count})
+    count_df = count_df.sort_values(by='Size', ascending=False, ignore_index=True)
+    q_str = 'Date >= "{}" and Date <= "{}"'.format(count_df['StartDate'].values[0], count_df['EndDate'].values[0])
+    _df = _df[[date_field, varfield]].query(q_str).copy()
+    return _df
+
+
 def group_by_month(dataframe, var_field, date_field='Date', zeros=True):
     """
     This function groups a daily time series into 12 timeseries for each month in the year.

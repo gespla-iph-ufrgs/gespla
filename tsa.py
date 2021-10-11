@@ -212,6 +212,63 @@ def frequency(dataframe, var_field, zero=True):
     return out_df
 
 
+def monthly_rmsi(dataframe, var_field, date_field='Date'):
+    """
+
+    Compute the monthly RMC and RMSI of a daily timeseries
+
+    -- Bad months (gaps found) are entirely deleted
+    -- Monthly statistic used: mean of the variable field
+    -- monthly RMC is computed against the time series month medians of the statistic (12 values)
+    -- RMSI is zero when RMC is positive and is the RMC when RMC is negative
+
+    :param dataframe: pandas dataframe time daily time series
+    :param var_field: string variable field
+    :param date_field: string date field
+    :return: pandas dataframe monthly timeseries of Date, Mean, Month, Month_Median, RMC and RMSI
+    """
+    import resample
+    # extrair o dataframe
+    _df = dataframe[[date_field, var_field]].copy()
+    #
+    # reamostrar mensalmente
+    _month_rmsi_df = resample.d2m_flow(dataframe=_df, var_field=var_field, date_field=date_field)
+    #
+    # extrair apenas a media mensal da variavel
+    _month_rmsi_df = _month_rmsi_df[[date_field, 'Mean']]
+    _month_rmsi_df['Month'] = _month_rmsi_df[date_field].apply(lambda x: x.strftime('%B'))
+    #
+    # obter as series agrupadas por mes
+    _g_dct = resample.group_by_month(dataframe=_month_rmsi_df, var_field='Mean')
+    #
+    # obter a lista de meses
+    months = list()
+    for m in _g_dct:
+        months.append(m)
+    # obter a mediana de cada mes
+    medians = dict()
+    for m in months:
+        medians[m] = np.median(_g_dct[m]['Mean'])
+    #
+    # inicializar o campo da mediana
+    _month_rmsi_df['Month_Median'] = 0.0
+    #
+    # inserir os valores de cada mes
+    for i in range(len(_month_rmsi_df)):
+        lcl_month = _month_rmsi_df['Month'].values[i]
+        _month_rmsi_df['Month_Median'].values[i] = medians[lcl_month]
+    #
+    #
+    # definir o RMC
+    _month_rmsi_df['RMC'] = _month_rmsi_df['Mean'] - _month_rmsi_df['Month_Median']
+    #
+    # definir o RMSI
+    _month_rmsi_df['RMSI'] = _month_rmsi_df['RMC'].values * (_month_rmsi_df['RMC'].values <= 0)
+    #
+    #
+    return _month_rmsi_df
+
+
 def sma(dataframe, var_field, window=7, date_field='Date', freq='month'):
     """
 
