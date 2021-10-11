@@ -252,7 +252,6 @@ def monthly_rmsi(dataframe, var_field, date_field='Date'):
     #
     # inicializar o campo da mediana
     _month_rmsi_df['Month_Median'] = 0.0
-    print(_month_rmsi_df.head().to_string())
     #
     # inserir os valores de cada mes
     for i in range(len(_month_rmsi_df)):
