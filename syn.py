@@ -126,14 +126,16 @@ def synthetic_values(states_series, cfcs, states):
     return syn_values
 
 
-def syn_prec(fseries, start_date='1970-01-01', end_date='2020-01-01', date_field='Date', var_field='Prec'):
+def syn_prec(dataframe, date_field='Date', var_field='Prec', start_date='1970-01-01', end_date='2020-01-01'):
     """
+
     generate a daily synthetic precipitation series using Markov chain
-    :param fseries: string filepath to observed series
-    :param start_date: string of starting date format: AAAA-MM-DD
-    :param end_date: string of ending date format: AAAA-MM-DD
+
+    :param dataframe: pandas dataframe of observed series
     :param date_field: string of date field in observed series
     :param var_field: string for precipitation field in observed series
+    :param start_date: string of starting date format: AAAA-MM-DD
+    :param end_date: string of ending date format: AAAA-MM-DD
     :return: pandas dataframe of synthetic time series.
     Fields:
     - Date
@@ -150,7 +152,7 @@ def syn_prec(fseries, start_date='1970-01-01', end_date='2020-01-01', date_field
     size_months = int(1.5 * len(syn_df)/12)
     #
     # read observed series
-    series_df = pd.read_csv(fseries, sep=';', parse_dates=['Date'])
+    series_df = dataframe.copy()
     #
     # resample by month
     month_dct = resample.group_by_month(dataframe=series_df, var_field=var_field)
