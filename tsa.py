@@ -207,7 +207,7 @@ def frequency(dataframe, var_field, zero=True):
     exeed = 100 - ptles
     freq = np.histogram(def_v, bins=101)[0]
     prob = freq/np.sum(freq)
-    out_dct = {'Percentiles': ptles, 'Exeedance':exeed, 'Frequency': freq, 'Probability': prob, 'Values':cfc}
+    out_dct = {'Percentiles': ptles, 'Exceedance':exeed, 'Frequency': freq, 'Probability': prob, 'Values':cfc}
     out_df = pd.DataFrame(out_dct)
     return out_df
 
