@@ -1,4 +1,4 @@
-'''
+"""
 ***** UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL *****
 ********** GESPLA IPH/UFGRS PYTHON LIBRARY **********
 
@@ -28,7 +28,9 @@ Authors:
 Ipora Possantti: https://github.com/ipo-exe
 
 First commit: 20 of October of 2020
-'''
+
+"""
+
 
 import pandas as pd
 import numpy as np
@@ -347,34 +349,11 @@ def interpolate_gaps(dataframe, var_field, size, freq='day', date_field='Date', 
             def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y})
             # drop null values
             def_df = def_df.dropna(how='any')
-            # create a custom interpolated function
+            # create a custom interpolation function
             interf = interp1d(def_df['X'], def_df['Y'], kind=kind)  # create a function
             lcl_y_new = interf(lcl_x)  # interpolate
             # def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y_new})
             def_y_new = np.append(def_y_new, lcl_y_new)
-            '''# if the last row is null and this is the last frame:
-            if last_row_bool and i == len(sliced_y) - 1:
-                # load to DataFrame:
-                stop = len(lcl_x) - 1
-                def_df = pd.DataFrame({'X': lcl_x[:stop], 'Y': lcl_y[:stop]})
-                # drop null values
-                def_df = def_df.dropna(how='any')
-                # create a custom interpolated function
-                interf = interp1d(def_df['X'], def_df['Y'], kind=type)  # create a function
-                lcl_y_new = interf(lcl_x[:stop])  # interpolate
-                #def_df = pd.DataFrame({'X': lcl_x[:stop], 'Y': lcl_y_new})
-                def_y_new = np.append(def_y_new, lcl_y_new)
-                def_y_new = np.append(def_y_new, np.array(np.nan))  # append a null at the end
-            else:
-                # load to DataFrame:
-                def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y})
-                # drop null values
-                def_df = def_df.dropna(how='any')
-                # create a custom interpolated function
-                interf = interp1d(def_df['X'], def_df['Y'], kind=type)  # create a function
-                lcl_y_new = interf(lcl_x)  # interpolate
-                #def_df = pd.DataFrame({'X': lcl_x, 'Y': lcl_y_new})
-                def_y_new = np.append(def_y_new, lcl_y_new)'''
     out_dct = {'Date': gap_df['Date'], 'Original':def_y, 'Interpolation': def_y_new}
     out_df = pd.DataFrame(out_dct)
     out_df['Date'] = pd.to_datetime(out_df['Date'])

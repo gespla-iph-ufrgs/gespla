@@ -176,7 +176,7 @@ def eval_prediction(dataframe, obs_field, pred_field):
     return out_dct
 
 
-def frequency(dataframe, var_field, zero=True):
+def frequency(dataframe, var_field, zero=True, step=1):
     """
 
     This fuction performs a frequency analysis on a given time series.
@@ -202,10 +202,10 @@ def frequency(dataframe, var_field, zero=True):
         mask = in_df[var_field] != 0
         in_df = in_df[mask]
     def_v = in_df[var_field].values
-    ptles = np.arange(0, 101, 1)
+    ptles = np.arange(0, 100 + step, step)
     cfc = np.percentile(def_v, ptles)
     exeed = 100 - ptles
-    freq = np.histogram(def_v, bins=101)[0]
+    freq = np.histogram(def_v, bins=len(ptles))[0]
     prob = freq/np.sum(freq)
     out_dct = {'Percentiles': ptles, 'Exceedance':exeed, 'Frequency': freq, 'Probability': prob, 'Values':cfc}
     out_df = pd.DataFrame(out_dct)
