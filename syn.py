@@ -35,6 +35,7 @@ import numpy as np
 import pandas as pd
 import resample
 import tsa
+import matplotlib.pyplot as plt
 
 
 def transition_matrix(states_series):
@@ -102,11 +103,11 @@ def synthetic_states(states, t_matrix, size=1000):
     return syn_series
 
 
-def synthetic_values(states_series, cfcs, states):
+def synthetic_values(states_series, cdfs, states):
     """
     Generate a synthetic series based on states and respective Cumulative Frequency Curve (CFC)
     :param states_series: 1d numpy array series of states (integer values)
-    :param cfcs: dict of cfcs. Keys must be the string version of the states
+    :param cdfs: dict of cfcs. Keys must be the string version of the states
     :param states: 1d numpy array of unique states (integer values)
     :return: 1d numpy array of synthetic series
     """
@@ -122,7 +123,7 @@ def synthetic_values(states_series, cfcs, states):
         for t in range(len(states_series)):
             if states_series[t] == s:
                 # random choice in cfc
-                syn_values[t] = np.random.choice(a=cfcs[str(s)], size=1)[0]
+                syn_values[t] = np.random.choice(a=cdfs[str(s)], size=1)[0]
     return syn_values
 
 
@@ -159,13 +160,13 @@ def syn_prec(dataframe, date_field='Date', var_field='Prec', start_date='1970-01
     months_lst = list(month_dct.keys())
     #
     # compute the CFCs for each month
-    cfcs_dct = dict()
+    cdfs_dct = dict()
     for i in range(len(months_lst)):
         lcl_freq = tsa.frequency(dataframe=month_dct[months_lst[i]], var_field=var_field, zero=False, step=0.1)
         if i == 0:
-            cfcs_dct['Exceedance'] = lcl_freq['Exceedance'].values
-        cfcs_dct[months_lst[i]] = lcl_freq['Values'].values
-    cfcs = pd.DataFrame(cfcs_dct)
+            cdfs_dct['Exceedance'] = lcl_freq['Exceedance'].values
+        cdfs_dct[months_lst[i]] = lcl_freq['Values'].values
+    cdfs_df = pd.DataFrame(cdfs_dct)
     #
     # compute a synthetic series for each month:
     syn_months = dict()
@@ -179,9 +180,9 @@ def syn_prec(dataframe, date_field='Date', var_field='Prec', start_date='1970-01
         lcl_syn_states = synthetic_states(states=un_states, t_matrix=t_matrix, size=size_months)
         #
         # built dict of states CFCs:
-        lcl_cfs = {'0': cfcs[m].values * 0, '1': cfcs[m].values}
+        lcl_cdf = {'0': cdfs_df[m].values * 0, '1': cdfs_df[m].values}
         # assign values to the states
-        lcl_syn = synthetic_values(states_series=lcl_syn_states, cfcs=lcl_cfs, states=un_states)
+        lcl_syn = synthetic_values(states_series=lcl_syn_states, cdfs=lcl_cdf, states=un_states)
         syn_months[m] = lcl_syn
     # insert values in list based on month
     for m in months_lst:
