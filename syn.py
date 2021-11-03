@@ -163,7 +163,9 @@ def syn_prec(dataframe, date_field='Date', var_field='Prec', start_date='1970-01
     cdfs_dct = dict()
     for i in range(len(months_lst)):
         lcl_freq = tsa.frequency(dataframe=month_dct[months_lst[i]], var_field=var_field, zero=False, step=0.1)
+
         if i == 0:
+            lcl_freq.to_csv('C:/bin/freq.txt', sep=';', index=False)
             cdfs_dct['Exceedance'] = lcl_freq['Exceedance'].values
         cdfs_dct[months_lst[i]] = lcl_freq['Values'].values
     cdfs_df = pd.DataFrame(cdfs_dct)

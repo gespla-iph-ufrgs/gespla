@@ -187,7 +187,7 @@ def frequency(dataframe, var_field, zero=True, step=1):
     :return: pandas DataFrame object with the following columns:
 
      'Pecentiles' - percentiles in % of array values (from 0 to 100 by steps of 1%)
-     'Exeedance' - exeedance probability in % (reverse of percentiles)
+     'Exceedance' - exeedance probability in % (reverse of percentiles)
      'Frequency' - count of values on the histogram bin defined by the percentiles
      'Probability'- local bin empirical probability defined by frequency/count
      'Values' - values percentiles of bins
