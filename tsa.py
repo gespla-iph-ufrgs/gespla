@@ -215,59 +215,86 @@ def frequency(dataframe, var_field, zero=True, step=1):
 def monthly_rmsi(dataframe, var_field, date_field='Date'):
     """
 
-    Compute the monthly RMC and RMSI of a daily timeseries
+    Compute the monthly RMC (Residual Mass Curve) and RMSI (Residual Mass Severity Index)
+    of a flow daily time series
+
+    Reference:
+    Afroz, R., Johnson, F., Sharma, A. (2021).
+    The residual mass severity index – A new method to characterize sustained hydroclimatic extremes.
+    Journal of Hydrology
+    https://doi.org/10.1016/j.jhydrol.2021.126724
 
     -- Bad months (gaps found) are entirely deleted
     -- Monthly statistic used: mean of the variable field
     -- monthly RMC is computed against the time series month medians of the statistic (12 values)
     -- RMSI is zero when RMC is positive and is the RMC when RMC is negative
 
-    :param dataframe: pandas dataframe time daily time series
+    :param dataframe: pandas dataframe time daily flow time series
     :param var_field: string variable field
     :param date_field: string date field
     :return: pandas dataframe monthly timeseries of Date, Mean, Month_Median, RMC and RMSI
     """
     import resample
-    # extrair o dataframe
+    import matplotlib.pyplot as plt
+    # get dataframe
     _df = dataframe[[date_field, var_field]].copy()
     #
-    # reamostrar mensalmente
-    _month_rmsi_df = resample.d2m_flow(dataframe=_df, var_field=var_field, date_field=date_field)
+    # resample to month (m3/day)
+    _month_rmc_df = resample.d2m_flow(dataframe=_df, var_field=var_field, date_field=date_field)
+    #
+    _month_stats = 'Mean'
+    #_month_rmc_df[_month_stats] = _month_rmc_df[_month_stats] / 1000000 # hm3
+    _month_rmc_df[_month_stats] = _month_rmc_df['Mean'] / 86400  # m3/s #
     #
     # extrair apenas a media mensal da variavel
-    _month_rmsi_df = _month_rmsi_df[[date_field, 'Mean']]
-    _month_rmsi_df['Month'] = _month_rmsi_df[date_field].apply(lambda x: x.strftime('%B'))
+    _month_rmc_df = _month_rmc_df[[date_field, _month_stats]]
+    _month_rmc_df['Month'] = _month_rmc_df[date_field].apply(lambda x: x.strftime('%B'))
     #
     # obter as series agrupadas por mes
-    _g_dct = resample.group_by_month(dataframe=_month_rmsi_df, var_field='Mean')
+    _g_dct = resample.group_by_month(dataframe=_month_rmc_df, var_field=_month_stats)
     #
     # obter a lista de meses
     months = list()
     for m in _g_dct:
         months.append(m)
-    # obter a mediana de cada mes
+    # obter a mediana da media de vazao de cada mes
     medians = dict()
     for m in months:
-        medians[m] = np.median(_g_dct[m]['Mean'])
+        medians[m] = np.median(_g_dct[m][_month_stats])
     #
     # inicializar o campo da mediana
-    _month_rmsi_df['Month_Median'] = 0.0
+    _month_rmc_df['Month_Median'] = 0.0
     #
     # inserir os valores de cada mes
-    for i in range(len(_month_rmsi_df)):
-        lcl_month = _month_rmsi_df['Month'].values[i]
-        _month_rmsi_df['Month_Median'].values[i] = medians[lcl_month]
+    for i in range(len(_month_rmc_df)):
+        lcl_month = _month_rmc_df['Month'].values[i]
+        _month_rmc_df['Month_Median'].values[i] = medians[lcl_month]
     #
     #
     # definir o RMC
-    _month_rmsi_df['RMC'] = _month_rmsi_df['Mean'] - _month_rmsi_df['Month_Median']
+    _month_rmc_df['RMC'] = _month_rmc_df[_month_stats] - _month_rmc_df['Month_Median']
     #
-    # definir o RMSI
-    _month_rmsi_df['RMSI'] = _month_rmsi_df['RMC'].values * (_month_rmsi_df['RMC'].values <= 0)
+    # interpolar falhas nos dados
+    _fill_gaps = resample.interpolate_gaps(dataframe=_month_rmc_df, var_field='RMC', size=6, freq='month', kind='linear')
+    _output_df = _fill_gaps[['Date', 'Interpolation']].copy()
+    _output_df = pd.merge(_output_df, _month_rmc_df, how='left', on='Date')
+    _output_df.rename(columns={'Interpolation':'RMC_int', 'RMC':'RMC_orig'}, inplace=True)
     #
-    # remover o campo auxiliar
-    _month_rmsi_df.drop(columns=['Month'], inplace=True)
-    return _month_rmsi_df
+    # inicializar o RMSI
+    _rmsi = np.zeros(shape=len(_output_df))
+    for t in range(1, len(_rmsi)):
+        if not pd.isna(_output_df['RMC_int'].values[t]):
+            _lcl_rmsi = _rmsi[t - 1] + (_output_df['RMC_int'].values[t])
+            if _lcl_rmsi > 0.0:
+                _rmsi[t] = 0.0
+            else:
+                _rmsi[t] = _lcl_rmsi
+    #
+    #
+    # organize output dataframe
+    _output_df['RMSI'] = _rmsi
+    _output_df = _output_df[['Date', 'Month', _month_stats, 'Month_Median', 'RMC_orig', 'RMC_int', 'RMSI']]
+    return _output_df
 
 
 def sma(dataframe, var_field, window=7, date_field='Date', freq='month'):

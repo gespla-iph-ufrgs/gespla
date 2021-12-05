@@ -506,9 +506,9 @@ def d2m_prec(dataframe, var_field='Prec', date_field='Date'):
     return def_out.copy()
 
 
-def d2m_flow(dataframe, factor=1.0, var_field='Flow', date_field='Date'):
+def d2m_flow(dataframe, var_field='Flow', date_field='Date', factor=1.0):
     """
-    his functions resamples a precipitation daily time series and returns the
+    his functions resamples a flow daily time series and returns the
     aggregated monthly time series with sum, mean, max, min and quantiles
 
     -------

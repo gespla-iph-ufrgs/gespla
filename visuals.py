@@ -4,6 +4,24 @@ import numpy as np
 import pandas as pd
 
 
+def view_rmsi(dataframe, show=False, folder='C:/bin', flenm='view_rmsi'):
+    fig = plt.figure(figsize=(10, 5))
+    plt.plot(dataframe['Date'], dataframe['Mean'], 'b', label='Mean flow')
+    plt.plot(dataframe['Date'], dataframe['Month_Median'], 'grey', label='Month Median')
+    plt.plot(dataframe['Date'], dataframe['RMC_int'], 'k', label='RMC')
+    plt.plot(dataframe['Date'], dataframe['RMSI'], 'tab:red', label='RMSI')
+    plt.ylabel('m3/s')
+    plt.title(flenm)
+    plt.legend()
+    plt.grid(True)
+    if show:
+        plt.show()
+    else:
+        aux_str = folder + '/' + flenm + '.png'
+        plt.savefig(aux_str)
+        plt.close()
+        return aux_str
+
 def pannel_singlets(folder, dataframe_ts, varfield, dataframe_freq, bymonth, rangedetail, detail=True, flenm='Pannel', ylbls='m3/s',
                     datefield='Date', scale='log', show=False):
     """
